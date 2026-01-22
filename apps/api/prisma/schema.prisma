@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Vocab {
+  id         String   @id @default(cuid())
+  word       String
+  furigana   String?
+  meaning    String?
+  notes      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  textVocabs TextVocab[]
+
+  @@map("vocabs")
+}
+
+model Text {
+  id        String   @id @default(cuid())
+  title     String?
+  content   String
+  source    String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  textVocabs TextVocab[]
+
+  @@map("texts")
+}
+
+model TextVocab {
+  id        String   @id @default(cuid())
+  vocabId   String   @map("vocab_id")
+  textId    String   @map("text_id")
+  sentence  String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  vocab     Vocab    @relation(fields: [vocabId], references: [id], onDelete: Cascade)
+  text      Text     @relation(fields: [textId], references: [id], onDelete: Cascade)
+
+  @@map("text_vocabs")
+}
