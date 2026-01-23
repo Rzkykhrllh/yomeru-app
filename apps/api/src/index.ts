@@ -3,7 +3,7 @@ import cors from 'cors';
 import { tokenizeRouter } from './routes/tokenize.routes';
 import { vocabsRouter } from './routes/vocabs.routes';
 import { textsRouter } from './routes/texts.routes';
-import { textVocabsRouter } from './routes/text-vocabs.routes';
+import { textVocabsRouter } from './routes/textVocabs.routes';
 
 const app = express();
 const PORT = process.env.PORT || 3001;

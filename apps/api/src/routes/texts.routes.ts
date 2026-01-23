@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { addText, getTextDetails, getTexts } from '../controllers/text.controller';
+import { addText, getTextDetails, getTexts, editText, deleteText } from '../controllers/text.controller';
 
 export const textsRouter = Router();
 
@@ -11,3 +11,9 @@ textsRouter.post('/', addText);
 
 // GET /api/texts/:id - Get text + vocabs
 textsRouter.get('/:id', getTextDetails);
+
+// PUT /api/texts/:id - Edit text
+textsRouter.put('/:id', editText);
+
+// DELETE /api/texts/:id - Delete text
+textsRouter.delete('/:id', deleteText);
