@@ -1,9 +1,7 @@
-import { Router } from 'express';
+import { Request, Response, NextFunction } from "express";
 
-export const textsRouter = Router();
 
-// GET /api/texts - Get all texts
-textsRouter.get('/', async (req, res) => {
+export const getTexts = async (req: Request, res: Response) => {
   try {
     // TODO: Implement with Prisma
     res.json({ texts: [] });
@@ -11,10 +9,9 @@ textsRouter.get('/', async (req, res) => {
     console.error('Error fetching texts:', error);
     res.status(500).json({ error: 'Failed to fetch texts' });
   }
-});
+}
 
-// POST /api/texts - Create text
-textsRouter.post('/', async (req, res) => {
+export const addText = async (req: Request, res: Response) => {
   try {
     const { title, content, source } = req.body;
 
@@ -28,10 +25,9 @@ textsRouter.post('/', async (req, res) => {
     console.error('Error creating text:', error);
     res.status(500).json({ error: 'Failed to create text' });
   }
-});
+}
 
-// GET /api/texts/:id - Get text + vocabs
-textsRouter.get('/:id', async (req, res) => {
+export const getTextDetails = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -41,4 +37,4 @@ textsRouter.get('/:id', async (req, res) => {
     console.error('Error fetching text:', error);
     res.status(500).json({ error: 'Failed to fetch text' });
   }
-});
+}

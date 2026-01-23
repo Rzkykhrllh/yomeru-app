@@ -1,9 +1,9 @@
 import express from 'express';
 import cors from 'cors';
-import { tokenizeRouter } from './routes/tokenize';
-import { vocabsRouter } from './routes/vocabs';
-import { textsRouter } from './routes/texts';
-import { textVocabsRouter } from './routes/text-vocabs';
+import { tokenizeRouter } from './routes/tokenize.routes';
+import { vocabsRouter } from './routes/vocabs.routes';
+import { textsRouter } from './routes/texts.routes';
+import { textVocabsRouter } from './routes/text-vocabs.routes';
 
 const app = express();
 const PORT = process.env.PORT || 3001;

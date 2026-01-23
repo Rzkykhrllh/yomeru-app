@@ -1,10 +1,8 @@
-import { Router } from 'express';
+
+import { Request, Response } from 'express'
 import { tokenizeText } from '../services/tokenizer';
 
-export const tokenizeRouter = Router();
-
-// POST /api/tokenize - Tokenize Japanese text
-tokenizeRouter.post('/', async (req, res) => {
+export const tokenizeTextController = async (req: Request, res: Response) => {
   try {
     const { text } = req.body;
 
@@ -18,4 +16,4 @@ tokenizeRouter.post('/', async (req, res) => {
     console.error('Tokenization error:', error);
     res.status(500).json({ error: 'Failed to tokenize text' });
   }
-});
+}

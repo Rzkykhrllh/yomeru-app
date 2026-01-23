@@ -1,9 +1,6 @@
-import { Router } from 'express';
+import {Request, Response} from 'express';
 
-export const textVocabsRouter = Router();
-
-// POST /api/text-vocabs - Link vocab to text with sentence
-textVocabsRouter.post('/', async (req, res) => {
+export const addTextVocab = async (req: Request, res: Response) => {
   try {
     const { vocabId, textId, sentence } = req.body;
 
@@ -19,4 +16,4 @@ textVocabsRouter.post('/', async (req, res) => {
     console.error('Error creating text-vocab link:', error);
     res.status(500).json({ error: 'Failed to create text-vocab link' });
   }
-});
+}

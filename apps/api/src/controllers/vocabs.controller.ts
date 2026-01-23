@@ -1,9 +1,6 @@
-import { Router } from 'express';
+import { Request, Response, NextFunction } from "express";
 
-export const vocabsRouter = Router();
-
-// GET /api/vocabs - Get all vocabs
-vocabsRouter.get('/', async (req, res) => {
+export const getVocabs = async (req: Request, res: Response) => {
   try {
     // TODO: Implement with Prisma
     res.json({ vocabs: [] });
@@ -11,10 +8,9 @@ vocabsRouter.get('/', async (req, res) => {
     console.error('Error fetching vocabs:', error);
     res.status(500).json({ error: 'Failed to fetch vocabs' });
   }
-});
+}
 
-// POST /api/vocabs - Create vocab
-vocabsRouter.post('/', async (req, res) => {
+export const addVocab = async (req: Request, res: Response) => {
   try {
     const { word, furigana, meaning, notes } = req.body;
 
@@ -28,10 +24,9 @@ vocabsRouter.post('/', async (req, res) => {
     console.error('Error creating vocab:', error);
     res.status(500).json({ error: 'Failed to create vocab' });
   }
-});
+}
 
-// GET /api/vocabs/:id - Get vocab + appearances
-vocabsRouter.get('/:id', async (req, res) => {
+export const getVocabDetails = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -41,4 +36,4 @@ vocabsRouter.get('/:id', async (req, res) => {
     console.error('Error fetching vocab:', error);
     res.status(500).json({ error: 'Failed to fetch vocab' });
   }
-});
+}
