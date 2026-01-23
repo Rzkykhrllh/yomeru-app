@@ -6,7 +6,7 @@ import { TokenizeResponse } from "@/types";
 
 export default function Home() {
   const [text, setText] = useState("");
-  const [tokens, setTokens] = useState<TokenizeResponse['tokens']>([]);
+  const [tokens, setTokens] = useState<TokenizeResponse["tokens"]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 

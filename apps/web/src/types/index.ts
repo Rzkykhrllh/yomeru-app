@@ -24,8 +24,8 @@ export interface Vocab {
 export interface Text {
   id: number;
   title: string;
-  content: string;           // raw Japanese text
-  source: string | null;     // sumber text (optional)
+  content: string; // raw Japanese text
+  source: string | null; // sumber text (optional)
   created_at: string;
 }
 
