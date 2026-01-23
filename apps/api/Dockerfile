@@ -1,27 +1,24 @@
 FROM node:20-alpine AS base
 
-# Install pnpm
-RUN npm install -g pnpm
-
 FROM base AS builder
 WORKDIR /app
 
 # Copy root package files
-COPY package.json pnpm-workspace.yaml ./
+COPY package.json package-lock.json* ./
 COPY apps/api/package.json ./apps/api/
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN npm ci
 
 # Copy source code
 COPY apps/api ./apps/api
 
 # Generate Prisma client
 WORKDIR /app/apps/api
-RUN pnpm exec prisma generate
+RUN npx prisma generate
 
 # Build
-RUN pnpm run build
+RUN npm run build
 
 FROM base AS runner
 WORKDIR /app
@@ -37,4 +34,4 @@ WORKDIR /app/apps/api
 
 EXPOSE 3001
 
-CMD ["pnpm", "start"]
+CMD ["npm", "start"]

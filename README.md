@@ -4,7 +4,7 @@ A web application for learning Japanese vocabulary through reading. Paste Japane
 
 ## Tech Stack
 
-- **Monorepo**: Turborepo + pnpm workspaces
+- **Monorepo**: Turborepo + npm workspaces
 - **Frontend**: Next.js 14 (App Router) + TypeScript + Tailwind CSS
 - **Backend**: Express + TypeScript
 - **Database**: PostgreSQL + Prisma ORM
@@ -28,14 +28,14 @@ yomeru-app/
 ### Prerequisites
 
 - Node.js 18+
-- pnpm 8+
+- npm 8+
 - Docker & Docker Compose (optional, for containerized setup)
 
 ### Local Development (without Docker)
 
 1. Install dependencies:
 ```bash
-pnpm install
+npm install
 ```
 
 2. Set up environment variables:
@@ -59,14 +59,14 @@ docker run -d \
 4. Run Prisma migrations:
 ```bash
 cd apps/api
-pnpm exec prisma migrate dev --name init
-pnpm exec prisma generate
+npm exec prisma migrate dev --name init
+npm exec prisma generate
 ```
 
 5. Start development servers:
 ```bash
 # From root directory
-pnpm dev
+npm dev
 ```
 
 This will start:
@@ -82,7 +82,7 @@ docker-compose up -d
 
 2. Run Prisma migrations:
 ```bash
-docker-compose exec api pnpm exec prisma migrate dev --name init
+docker-compose exec api npm exec prisma migrate dev --name init
 ```
 
 3. Access the application:
@@ -137,19 +137,19 @@ docker-compose exec api pnpm exec prisma migrate dev --name init
 
 ```bash
 # Install dependencies
-pnpm install
+npm install
 
 # Start dev servers (all apps)
-pnpm dev
+npm dev
 
 # Build all apps
-pnpm build
+npm build
 
 # Lint
-pnpm lint
+npm lint
 
 # Clean build artifacts
-pnpm clean
+npm clean
 ```
 
 ## Future Considerations

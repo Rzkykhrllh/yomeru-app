@@ -1,24 +1,21 @@
 FROM node:20-alpine AS base
 
-# Install pnpm
-RUN npm install -g pnpm
-
 FROM base AS builder
 WORKDIR /app
 
 # Copy root package files
-COPY package.json pnpm-workspace.yaml ./
+COPY package.json package-lock.json* ./
 COPY apps/web/package.json ./apps/web/
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN npm ci
 
 # Copy source code
 COPY apps/web ./apps/web
 
 # Build
 WORKDIR /app/apps/web
-RUN pnpm run build
+RUN npm run build
 
 FROM base AS runner
 WORKDIR /app
@@ -34,4 +31,4 @@ WORKDIR /app/apps/web
 
 EXPOSE 3000
 
-CMD ["pnpm", "start"]
+CMD ["npm", "start"]
