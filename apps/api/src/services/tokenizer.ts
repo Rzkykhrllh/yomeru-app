@@ -1,5 +1,5 @@
-import kuromoji from 'kuromoji';
-import path from 'path';
+import kuromoji from "kuromoji";
+import path from "path";
 
 let tokenizer: any = null;
 
@@ -10,7 +10,25 @@ const initTokenizer = (): Promise<any> => {
       return resolve(tokenizer);
     }
 
-    kuromoji.builder({ dicPath: 'node_modules/kuromoji/dict' }).build((err: Error, _tokenizer: any) => {
+    // Try multiple possible paths
+    const possiblePaths = [
+      path.resolve(process.cwd(), "../../node_modules/kuromoji/dict"), // from apps/api
+      path.resolve(process.cwd(), "node_modules/kuromoji/dict"), // from root
+      "/Users/rizky/Desktop/Code/Personal/yomeru-app/node_modules/kuromoji/dict", // absolute
+    ];
+
+    let dicPath = possiblePaths[0];
+
+    // Check which path exists
+    const fs = require("fs");
+    for (const p of possiblePaths) {
+      if (fs.existsSync(p)) {
+        dicPath = p;
+        break;
+      }
+    }
+
+    kuromoji.builder({ dicPath }).build((err: Error, _tokenizer: any) => {
       if (err) {
         return reject(err);
       }
