@@ -1,39 +1,106 @@
 import { Request, Response, NextFunction } from "express";
+import { prisma } from "../lib/prisma";
 
 export const getVocabs = async (req: Request, res: Response) => {
   try {
-    // TODO: Implement with Prisma
-    res.json({ vocabs: [] });
+    const vocabs = await prisma.vocab.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        _count: {
+          select: { textVocabs: true },
+        },
+      },
+    });
+    res.json({ vocabs });
   } catch (error) {
-    console.error('Error fetching vocabs:', error);
-    res.status(500).json({ error: 'Failed to fetch vocabs' });
+    console.error("Error fetching vocabs:", error);
+    res.status(500).json({ error: "Failed to fetch vocabs" });
   }
-}
+};
 
 export const addVocab = async (req: Request, res: Response) => {
   try {
     const { word, furigana, meaning, notes } = req.body;
 
     if (!word) {
-      return res.status(400).json({ error: 'Word is required' });
+      return res.status(400).json({ error: "Word is required" });
     }
 
-    // TODO: Implement with Prisma
-    res.status(201).json({ message: 'Vocab created' });
+    // check if vocab already exists
+    const isExist = await prisma.vocab.findFirst({
+      where: { word },
+    });
+
+    if (isExist) {
+      return res.status(400).json({ error: "Vocab already exists" });
+    }
+
+    const vocab = await prisma.vocab.create({
+      data: {
+        word,
+        furigana: furigana || null,
+        meaning: meaning || null,
+        notes: notes || null,
+      },
+    });
+    res.status(201).json({ message: "Vocab created", vocab });
   } catch (error) {
-    console.error('Error creating vocab:', error);
-    res.status(500).json({ error: 'Failed to create vocab' });
+    console.error("Error creating vocab:", error);
+    res.status(500).json({ error: "Failed to create vocab" });
   }
-}
+};
 
 export const getVocabDetails = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    // TODO: Implement with Prisma
-    res.json({ vocab: null, appearances: [] });
+    const vocab = await prisma.vocab.findUnique({
+      where: { id },
+      include: {
+        textVocabs: {
+          include: {
+            text: {
+              select: {
+                id: true,
+                title: true,
+                content: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+      },
+    });
+
+    if (!vocab) {
+      return res.status(404).json({ error: "Vocab not found" });
+    }
+
+    // Format Appearances
+    const appearances = vocab.textVocabs.map((tv) => ({
+      id: tv.id,
+      sentence: tv.sentence,
+      text: tv.text,
+      createdAt: tv.createdAt,
+    }));
+
+    res.json({
+      vocab: {
+        id: vocab.id,
+        word: vocab.word,
+        furigana: vocab.furigana,
+        meaning: vocab.meaning,
+        notes: vocab.notes,
+        createdAt: vocab.createdAt,
+      },
+      appearances,
+    });
   } catch (error) {
-    console.error('Error fetching vocab:', error);
-    res.status(500).json({ error: 'Failed to fetch vocab' });
+    console.error("Error fetching vocab:", error);
+    res.status(500).json({ error: "Failed to fetch vocab" });
   }
-}
+};
