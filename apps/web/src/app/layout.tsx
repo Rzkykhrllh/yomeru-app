@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
 import "./globals.css";
+import type { Metadata } from "next";
 import { Providers } from "./providers";
+import Layout from "@/components/Layout";
 
 export const metadata: Metadata = {
   title: "Yomeru - Japanese Reading & Vocab Learning",
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <Providers>{children}</Providers>
+        <Providers>
+          <Layout>{children}</Layout>
+        </Providers>
       </body>
     </html>
   );

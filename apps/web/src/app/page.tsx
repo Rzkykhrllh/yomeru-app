@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { postJson } from "@/lib/api";
 import { TokenizeResponse } from "@/types";
 
@@ -10,9 +10,10 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleTokenize = async () => {
-    if (!text.trim()) {
-      setError("Please enter some text to tokenize.");
+  const processText = useCallback(async (inputText: string) => {
+    if (!inputText.trim()) {
+      setTokens([]);
+      setError("");
       return;
     }
 
@@ -21,58 +22,76 @@ export default function Home() {
 
     try {
       const response = await postJson<TokenizeResponse>("/api/tokenize", {
-        text,
+        text: inputText,
       });
       setTokens(response.tokens);
     } catch (err) {
-      setError("Failed to tokenize text. Please try again.");
-      console.error("Tokenize error:", err);
+      setError("Unable to process text. Please try again.");
+      console.error("Process error:", err);
+      setTokens([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Auto-process text after user stops typing (debounce)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      processText(text);
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [text, processText]);
 
   return (
-    <main className="min-h-screen p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Paste Japanese Text</h1>
-        <div className="space-y-4">
+    <div>
+      <h1 className="text-3xl font-bold mb-2">Read Japanese Text</h1>
+      <p className="text-gray-600 mb-8">
+        Paste or type Japanese text below. Click any word to save and annotate it.
+      </p>
+
+      <div className="space-y-6">
+        <div className="relative">
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className="w-full min-h-[200px] p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Paste your Japanese text here..."
+            className="w-full min-h-[200px] p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl leading-relaxed resize-none"
+            placeholder="私は日本語を勉強しています"
             disabled={loading}
           />
-
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-
-          <button
-            onClick={handleTokenize}
-            disabled={loading}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Tokenizing..." : "Tokenize"}
-          </button>
-
-          {tokens.length > 0 && (
-            <div className="mt-6 p-4 border border-gray-200 rounded-lg">
-              <h2 className="text-xl font-semibold mb-4">Tokens</h2>
-              <div className="flex flex-wrap gap-2">
-                {tokens.map((token, index) => (
-                  <div
-                    key={index}
-                    title={`POS: ${token.pos}, Reading: ${token.reading}`}
-                    className="px-3 py-1 bg-gray-100 rounded border border-gray-300 hover:bg-gray-200 cursor-pointer"
-                  >
-                    {token.surface_form}
-                  </div>
-                ))}
-              </div>
+          {loading && (
+            <div className="absolute top-4 right-4">
+              <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
             </div>
           )}
         </div>
+
+        {error && (
+          <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded p-3">
+            {error}
+          </div>
+        )}
+
+        {tokens.length > 0 && (
+          <div className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+            <div className="text-xl leading-relaxed text-gray-900">
+              {tokens.map((token, index) => (
+                <span
+                  key={index}
+                  title={`${token.reading}`}
+                  className="hover:bg-blue-100 hover:shadow-sm cursor-pointer rounded-sm px-0.5 transition-all inline-block"
+                  onClick={() => {
+                    // Nanti akan buka modal annotate
+                    console.log("Clicked token:", token);
+                  }}
+                >
+                  {token.surface_form}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-    </main>
+    </div>
   );
 }
