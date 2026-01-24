@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { postJson } from "@/lib/api";
 import { TokenizeResponse } from "@/types";
 import { useCreateVocab, useCreateText } from "@/hooks";
@@ -21,6 +21,9 @@ export default function Home() {
 
   const { createVocab } = useCreateVocab();
   const { createText } = useCreateText();
+
+  // UseRef
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   // TODO: Understand how this code below works, especially useCallback
   const processText = useCallback(async (inputText: string) => {
@@ -45,6 +48,11 @@ export default function Home() {
       setTokens([]);
     } finally {
       setLoading(false);
+
+      // restore focus to textarea
+      setTimeout(() => {
+        textAreaRef.current?.focus();
+      }, 0);
     }
   }, []);
 
@@ -134,11 +142,12 @@ export default function Home() {
       <div className="space-y-6">
         <div className="relative">
           <textarea
+            ref={textAreaRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
             className="w-full min-h-[200px] p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl leading-relaxed resize-none"
             placeholder="私は日本語を勉強しています"
-            disabled={loading}
+            aria-busy={loading}
           />
           {loading && (
             <div className="absolute top-4 right-4">
