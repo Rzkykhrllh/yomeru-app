@@ -16,6 +16,7 @@ export const fetcher = async <T>(url: string): Promise<T> => {
   return res.json();
 };
 
+// async function to post JSON data to a given URL and return the response as type T
 export const postJson = async <T>(url: string, data: any): Promise<T> => {
   const res = await fetch(`${API_URL}${url}`, {
     method: "POST",
