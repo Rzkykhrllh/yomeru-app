@@ -3,8 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { postJson } from "@/lib/api";
 import { TokenizeResponse } from "@/types";
-import { useCreateVocab } from "@/hooks";
+import { useCreateVocab, useCreateText } from "@/hooks";
 import VocabModal from "@/components/VocabModal";
+import SaveTextModal from "@/components/SaveTextModal";
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -16,8 +17,10 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedToken, setSelectedToken] = useState<TokenizeResponse["tokens"][0] | null>(null);
   const [selectedTokenIndex, setSelectedTokenIndex] = useState<number | null>(null);
+  const [isSaveTextModalOpen, setIsSaveTextModalOpen] = useState(false);
 
   const { createVocab } = useCreateVocab();
+  const { createText } = useCreateText();
 
   // TODO: Understand how this code below works, especially useCallback
   const processText = useCallback(async (inputText: string) => {
@@ -34,6 +37,7 @@ export default function Home() {
       const response = await postJson<TokenizeResponse>("/api/tokenize", {
         text: inputText,
       });
+
       setTokens(response.tokens);
     } catch (err) {
       setError("Unable to process text. Please try again.");
@@ -104,6 +108,23 @@ export default function Home() {
     }
   };
 
+  const handleSaveText = async (data: { title: string; source?: string }) => {
+    try {
+      await createText({
+        title: data.title,
+        content: text,
+        source: data.source,
+      });
+
+      // Show success feedback
+      alert("Text saved successfully!");
+    } catch (error) {
+      console.error("Error saving text:", error);
+      alert("Failed to save text. Please try again.");
+      throw error;
+    }
+  };
+
   return (
     <div>
       <h1 className="text-3xl font-bold mb-2">Read Japanese Text</h1>
@@ -131,19 +152,35 @@ export default function Home() {
           </div>
         )}
         {tokens.length > 0 && (
-          <div className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
-            <div className="text-xl leading-relaxed text-gray-900">
-              {tokens.map((token, index) => (
-                <span
-                  key={index}
-                  title={`${token.reading}`}
-                  className="hover:bg-blue-100 hover:shadow-sm cursor-pointer rounded-sm px-0.5 transition-all inline-block"
-                  onClick={() => handleTokenClick(token, index)}
-                >
-                  {token.surface_form}
-                </span>
-              ))}
+          <div className="space-y-4">
+            <div className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+              <div className="text-xl leading-relaxed text-gray-900">
+                {tokens.map((token, index) => {
+                  // Render newline as <br>
+                  if (token.surface_form === "\n") {
+                    return <br key={index} />;
+                  }
+
+                  return (
+                    <span
+                      key={index}
+                      title={`${token.reading}`}
+                      className="hover:bg-blue-100 hover:shadow-sm cursor-pointer rounded-sm px-0.5 transition-all inline-block"
+                      onClick={() => handleTokenClick(token, index)}
+                    >
+                      {token.surface_form}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
+
+            <button
+              onClick={() => setIsSaveTextModalOpen(true)}
+              className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+            >
+              Save This Text
+            </button>
           </div>
         )}
       </div>
@@ -153,6 +190,12 @@ export default function Home() {
         token={selectedToken}
         sentence={extractSentence(selectedTokenIndex)}
         onSave={handleSaveVocab}
+      />
+
+      <SaveTextModal
+        isOpen={isSaveTextModalOpen}
+        onClose={() => setIsSaveTextModalOpen(false)}
+        onSave={handleSaveText}
       />
     </div>
   );
