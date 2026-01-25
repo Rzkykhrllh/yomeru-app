@@ -104,3 +104,18 @@ export const getVocabDetails = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to fetch vocab" });
   }
 };
+
+export const deleteVocab = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const isDeleted = await prisma.vocab.delete({
+      where: { id },
+    });
+
+    res.json({ message: "Vocab deleted successfully", vocab: isDeleted });
+  } catch (error) {
+    console.error("Error deleting vocab:", error);
+    res.status(500).json({ error: "Failed to delete vocab" });
+  }
+};
