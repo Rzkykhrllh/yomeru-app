@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { postJson } from "@/lib/api";
 import { TokenizeResponse } from "@/types";
-import { useCreateVocab, useCreateText } from "@/hooks";
+import { useCreateVocab, useCreateText, useVocabs } from "@/hooks";
 import VocabModal from "@/components/VocabModal";
 import SaveTextModal from "@/components/SaveTextModal";
 
@@ -19,8 +19,10 @@ export default function Home() {
   const [selectedTokenIndex, setSelectedTokenIndex] = useState<number | null>(null);
   const [isSaveTextModalOpen, setIsSaveTextModalOpen] = useState(false);
 
+  // Custom Hooks
   const { createVocab } = useCreateVocab();
   const { createText } = useCreateText();
+  const { vocabs } = useVocabs();
 
   // UseRef
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -55,6 +57,12 @@ export default function Home() {
       }, 0);
     }
   }, []);
+
+  const isKnownVocab = (token: TokenizeResponse["tokens"][0]): boolean => {
+    if (!vocabs) return false;
+
+    return vocabs.some((vocab) => vocab.word === token.basic_form);
+  };
 
   // Auto-process text after user stops typing (debounce)
   // TODO: Understand how this code below works
@@ -170,11 +178,17 @@ export default function Home() {
                     return <br key={index} />;
                   }
 
+                  const isKnown = isKnownVocab(token);
+
                   return (
                     <span
                       key={index}
-                      title={`${token.reading}`}
-                      className="hover:bg-blue-100 hover:shadow-sm cursor-pointer rounded-sm px-0.5 transition-all inline-block"
+                      title={`${token.reading}${isKnown ? " (Known)" : ""}`}
+                      className={`cursor-pointer rounded-sm px-0.5 transition-all inline-block ${
+                        isKnown
+                          ? "bg-green-100 hover:bg-green-200 text-green-900"
+                          : "hover:bg-blue-100 hover:shadow-sm"
+                      }`}
                       onClick={() => handleTokenClick(token, index)}
                     >
                       {token.surface_form}
