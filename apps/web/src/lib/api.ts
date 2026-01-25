@@ -37,3 +37,41 @@ export const postJson = async <T>(url: string, data: any): Promise<T> => {
 
   return res.json();
 };
+
+export const putJson = async <T>(url: string, data: any): Promise<T> => {
+  const res = await fetch(`${API_URL}${url}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const error = new Error("An error occurred while putting the data.");
+
+    // Attach extra info to the error object.
+    (error as any).info = await res.json().catch(() => ({}));
+    (error as any).status = res.status;
+    throw error;
+  }
+
+  return res.json();
+};
+
+export const deleteJson = async <T>(url: string): Promise<T> => {
+  const res = await fetch(`${API_URL}${url}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) {
+    const error = new Error("An error occurred while deleting the data.");
+
+    // Attach extra info to the error object.
+    (error as any).info = await res.json().catch(() => ({}));
+    (error as any).status = res.status;
+    throw error;
+  }
+
+  return res.json();
+};
