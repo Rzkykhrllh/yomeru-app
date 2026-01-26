@@ -16,7 +16,7 @@ interface VocabModalProps {
     word: string;
     furigana: string;
     meaning: string;
-    notes: string;
+    notes?: string;
   }) => Promise<void>;
 }
 
