@@ -5,6 +5,7 @@ import { postJson } from "@/lib/api";
 import { TokenizeResponse, Vocab } from "@/types";
 import VocabModal from "./VocabModal";
 import VocabTooltip from "./VocabTooltip";
+import { PencilIcon, EyeIcon } from "@heroicons/react/24/outline";
 
 interface TextEditorProps {
   textId: string | null;
@@ -39,6 +40,7 @@ export default function TextEditor({
   const [tokens, setTokens] = useState<TokenizeResponse["tokens"]>([]);
   const [loading, setLoading] = useState(false);
   const [isTitleManuallyEdited, setIsTitleManuallyEdited] = useState(false);
+  const [editorMode, setEditorMode] = useState<"edit" | "view">("edit"); // New: editor mode
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,6 +56,12 @@ export default function TextEditor({
     setContent(initialContent);
     setSource(initialSource);
     setIsTitleManuallyEdited(!!initialTitle); // If has initial title, consider it edited
+    
+    // If there's content, tokenize it and set to view mode
+    if (initialContent.trim()) {
+      tokenizeText(initialContent);
+      setEditorMode("view");
+    }
   }, [initialTitle, initialContent, initialSource]);
 
   // Tokenize Text
@@ -79,14 +87,8 @@ export default function TextEditor({
     }
   }, []);
 
-  // Auto-tokenize on content change
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      tokenizeText(content);
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [content, tokenizeText]);
+  // REMOVED: Auto-tokenize on content change
+  // Now tokenization happens only on mode switch (edit → view)
 
   // Auto save (debounced)
   useEffect(() => {
@@ -171,6 +173,34 @@ export default function TextEditor({
     setIsModalOpen(true);
   };
 
+  const toggleMode = () => {
+    if (editorMode === "edit") {
+      // Switching to view mode: tokenize the content
+      tokenizeText(content);
+      setEditorMode("view");
+    } else {
+      // Switching to edit mode
+      setEditorMode("edit");
+      // Focus on textarea after mode switch
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 0);
+    }
+  };
+
+  // Keyboard shortcut: Cmd/Ctrl + E to toggle mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "e") {
+        e.preventDefault();
+        toggleMode();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [editorMode, content]);
+
   return (
       <div className="h-full flex flex-col">
         {/* Title */}
@@ -188,35 +218,63 @@ export default function TextEditor({
           <input
             type="text"
             value={source}
-            placeholder="Untitled"
+            placeholder="Source"
             onChange={(e) => setSource(e.target.value)}
             className="w-full text-sm text-muted border-none outline-none focus:ring-0 p-0 mt-2 bg-transparent"
           />
         </div>
 
       {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-5">
-          <div className="relative">
+        <div className="flex-1 flex flex-col px-6 py-6 gap-4 overflow-hidden">
+          {/* Mode Toggle Switch */}
+          <div className="inline-flex items-center rounded-full bg-highlight p-1 border border-line self-start">
+            <button
+              onClick={() => setEditorMode("edit")}
+              className={`relative inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                editorMode === "edit"
+                  ? "bg-panel text-ink shadow-sm"
+                  : "text-muted hover:text-body"
+              }`}
+              title="Edit Mode (Cmd+E)"
+            >
+              <PencilIcon className="w-4 h-4" />
+              <span>Edit</span>
+            </button>
+            <button
+              onClick={() => setEditorMode("view")}
+              className={`relative inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                editorMode === "view"
+                  ? "bg-panel text-ink shadow-sm"
+                  : "text-muted hover:text-body"
+              }`}
+              title="View Mode (Cmd+E)"
+            >
+              <EyeIcon className="w-4 h-4" />
+              <span>View</span>
+            </button>
+          </div>
+          {editorMode === "edit" ? (
+            // Edit Mode: Plain textarea (full height)
             <textarea
               ref={textareaRef}
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Enter your Japanese text here..."
-              className="w-full min-h-[220px] p-5 rounded-2xl border border-line bg-card text-xl leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-              aria-busy={loading}
+              placeholder="Enter your Japanese text here...&#10;&#10;Switch to View mode to see tokenized text"
+              className="flex-1 w-full p-5 rounded-2xl border border-line bg-card text-xl leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-ring"
             />
+          ) : (
+            // View Mode: Tokenized text
+            <div className="flex-1 overflow-y-auto">
+              {loading && (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin h-8 w-8 border-2 border-accent border-t-transparent rounded-full"></div>
+                  <span className="ml-3 text-muted">Tokenizing...</span>
+                </div>
+              )}
 
-          {loading && (
-            <div className="absolute top-4 right-4">
-              <div className="animate-spin h-5 w-5 border-2 border-accent border-t-transparent rounded-full"></div>
-            </div>
-          )}
-        </div>
-
-        {/* TODO: Continue from here */}
-        {tokens.length > 0 && (
-          <div className="p-5 rounded-2xl border border-line bg-card shadow-card">
-            <div className="text-xl leading-relaxed text-gray-900 whitespace-pre-wrap">
+              {!loading && tokens.length > 0 && (
+                <div className="p-5 rounded-2xl border border-line bg-card shadow-card">
+                  <div className="text-xl leading-relaxed text-gray-900 whitespace-pre-wrap">
               {tokens.map((token, index) => {
                 // Handle newlines
                 if (token.surface_form === "\n") {
@@ -267,10 +325,18 @@ export default function TextEditor({
                   </React.Fragment>
                 );
               })}
+                  </div>
+                </div>
+              )}
+              
+              {!loading && tokens.length === 0 && (
+                <div className="p-8 text-center text-muted rounded-2xl border border-line bg-card">
+                  <p>No content to display. Switch to Edit mode to add text.</p>
+                </div>
+              )}
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
       <VocabModal
         token={selectedToken}

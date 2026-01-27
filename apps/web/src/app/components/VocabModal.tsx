@@ -33,9 +33,9 @@ export default function VocabModal({ isOpen, onClose, token, sentence, onSave }:
       setWord(token.surface_form);
       setFurigana(token.reading || "");
       setMeaning("");
-      setNotes(`Sentence: ${sentence}`);
+      setNotes(""); // Start with empty notes, let user fill if needed
     }
-  }, [token]);
+  }, [token, sentence]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevent default form submission

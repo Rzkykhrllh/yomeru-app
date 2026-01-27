@@ -26,7 +26,15 @@ interface VocabModalProps {
   onSaveSentence?: (vocabId: string, sentence: string) => Promise<void>;
 }
 
-export default function VocabModal({ isOpen, onClose, token, sentence, onSave, existingVocab, onSaveSentence }: VocabModalProps) {
+export default function VocabModal({
+  isOpen,
+  onClose,
+  token,
+  sentence,
+  onSave,
+  existingVocab,
+  onSaveSentence,
+}: VocabModalProps) {
   const { showToast } = useToast();
   const [word, setWord] = useState("");
   const [furigana, setFurigana] = useState("");
@@ -43,7 +51,7 @@ export default function VocabModal({ isOpen, onClose, token, sentence, onSave, e
         setWord(existingVocab.word || "");
         setFurigana(existingVocab.furigana || "");
         setMeaning(existingVocab.meaning || "");
-        setNotes(existingVocab.notes || `Sentence: ${sentence}`);
+        setNotes(existingVocab.notes || "");
       } else {
         // Otherwise, use token data (new vocab)
         setWord(token.surface_form);
@@ -81,7 +89,7 @@ export default function VocabModal({ isOpen, onClose, token, sentence, onSave, e
 
   const handleSaveSentence = async () => {
     if (!existingVocab || !onSaveSentence) return;
-    
+
     setIsSavingSentence(true);
     try {
       await onSaveSentence(existingVocab.id, sentence);
@@ -203,77 +211,77 @@ export default function VocabModal({ isOpen, onClose, token, sentence, onSave, e
               <p className="text-base text-gray-900 leading-relaxed">{sentence}</p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Word <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={word}
-                onChange={(e) => setWord(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-line bg-card text-xl focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="食べる"
-                required
-                disabled={isSaving}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Furigana <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={furigana}
-                onChange={(e) => setFurigana(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-line bg-card focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="たべる"
-                required
-                disabled={isSaving}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Meaning <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={meaning}
-                onChange={(e) => setMeaning(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-line bg-card focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="to eat"
-                required
-                disabled={isSaving}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-line bg-card resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="Personal notes..."
-                rows={3}
-                disabled={isSaving}
-              />
-            </div>
-            <div className="flex gap-3 pt-2">
-              <button
-                type="button"
-                onClick={handleClose}
-                disabled={isSaving}
-                className="flex-1 px-4 py-2 border border-line rounded-xl hover:bg-highlight transition-colors disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="flex-1 px-4 py-2 rounded-xl bg-accent text-white hover:bg-ink transition-colors disabled:opacity-50"
-              >
-                {isSaving ? "Saving..." : "Save"}
-              </button>
-            </div>
-          </form>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Word <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={word}
+                  onChange={(e) => setWord(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-line bg-card text-xl focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder="食べる"
+                  required
+                  disabled={isSaving}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Furigana <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={furigana}
+                  onChange={(e) => setFurigana(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-line bg-card focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder="たべる"
+                  required
+                  disabled={isSaving}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Meaning <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={meaning}
+                  onChange={(e) => setMeaning(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-line bg-card focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder="to eat"
+                  required
+                  disabled={isSaving}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-line bg-card resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder="Personal notes..."
+                  rows={3}
+                  disabled={isSaving}
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  disabled={isSaving}
+                  className="flex-1 px-4 py-2 border border-line rounded-xl hover:bg-highlight transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="flex-1 px-4 py-2 rounded-xl bg-accent text-white hover:bg-ink transition-colors disabled:opacity-50"
+                >
+                  {isSaving ? "Saving..." : "Save"}
+                </button>
+              </div>
+            </form>
           </>
         )}
       </div>
