@@ -33,7 +33,7 @@ export default function VocabModal({ isOpen, onClose, token, sentence, onSave }:
       setWord(token.surface_form);
       setFurigana(token.reading || "");
       setMeaning("");
-      setNotes(`Context: ${sentence}`);
+      setNotes(`Sentence: ${sentence}`);
     }
   }, [token]);
 
@@ -79,7 +79,7 @@ export default function VocabModal({ isOpen, onClose, token, sentence, onSave }:
           </button>
         </div>
         <div className="mb-4 p-3 bg-gray-50 rounded border border-gray-200">
-          <p className="text-sm text-gray-600 mb-1">Context:</p>
+          <p className="text-sm text-gray-600 mb-1">Sentence:</p>
           <p className="text-lg text-gray-900 leading-relaxed">{sentence}</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -23,15 +23,17 @@ interface VocabModalProps {
     sentence: string;
   }) => Promise<void>;
   existingVocab?: Vocab | null;
+  onSaveSentence?: (vocabId: string, sentence: string) => Promise<void>;
 }
 
-export default function VocabModal({ isOpen, onClose, token, sentence, onSave, existingVocab }: VocabModalProps) {
+export default function VocabModal({ isOpen, onClose, token, sentence, onSave, existingVocab, onSaveSentence }: VocabModalProps) {
   const { showToast } = useToast();
   const [word, setWord] = useState("");
   const [furigana, setFurigana] = useState("");
   const [meaning, setMeaning] = useState("");
   const [notes, setNotes] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingSentence, setIsSavingSentence] = useState(false);
 
   // Auto-fill word and furigana when token changes
   useEffect(() => {
@@ -41,13 +43,13 @@ export default function VocabModal({ isOpen, onClose, token, sentence, onSave, e
         setWord(existingVocab.word || "");
         setFurigana(existingVocab.furigana || "");
         setMeaning(existingVocab.meaning || "");
-        setNotes(existingVocab.notes || `Context: ${sentence}`);
+        setNotes(existingVocab.notes || `Sentence: ${sentence}`);
       } else {
         // Otherwise, use token data (new vocab)
         setWord(token.surface_form);
         setFurigana(token.reading || "");
         setMeaning("");
-        setNotes(`Context: ${sentence}`);
+        setNotes(`Sentence: ${sentence}`);
       }
     }
   }, [token, existingVocab, sentence]);
@@ -77,8 +79,24 @@ export default function VocabModal({ isOpen, onClose, token, sentence, onSave, e
     }
   };
 
+  const handleSaveSentence = async () => {
+    if (!existingVocab || !onSaveSentence) return;
+    
+    setIsSavingSentence(true);
+    try {
+      await onSaveSentence(existingVocab.id, sentence);
+      showToast("Sentence added successfully", "success");
+      onClose();
+    } catch (error) {
+      console.error("Error saving sentence:", error);
+      showToast("Failed to save sentence. Please try again.", "error");
+    } finally {
+      setIsSavingSentence(false);
+    }
+  };
+
   const handleClose = () => {
-    if (!isSaving) {
+    if (!isSaving && !isSavingSentence) {
       onClose();
     }
   };
@@ -102,16 +120,11 @@ export default function VocabModal({ isOpen, onClose, token, sentence, onSave, e
             ×
           </button>
         </div>
-        <div className="mb-4 p-4 bg-highlight rounded-xl border border-line">
-          <p className="text-sm text-gray-600 mb-1">Context:</p>
-          <p className="text-lg text-gray-900 leading-relaxed">{sentence}</p>
-        </div>
-
         {existingVocab ? (
           // Read-only view for existing vocab
           <div className="space-y-4">
             <div className="p-4 bg-accent-soft rounded-xl border border-highlight-strong">
-              <p className="text-sm text-muted mb-2">This word is already in your vocabulary!</p>
+              <p className="text-sm text-muted">This word is already in your vocabulary!</p>
             </div>
 
             <div>
@@ -139,32 +152,57 @@ export default function VocabModal({ isOpen, onClose, token, sentence, onSave, e
             {notes && (
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wide text-muted mb-2">
-                  Notes
+                  Saved Notes
                 </label>
-                <p className="text-gray-700">{notes}</p>
+                <p className="text-sm text-gray-700 bg-highlight rounded-lg px-3 py-2">{notes}</p>
               </div>
             )}
+
+            <div className="p-4 bg-highlight rounded-xl border border-line">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-2">
+                Current Sentence
+              </p>
+              <p className="text-base text-gray-900 leading-relaxed">{sentence}</p>
+            </div>
 
             <div className="flex gap-3 pt-2">
               <button
                 type="button"
                 onClick={handleClose}
-                className="flex-1 px-4 py-2 border border-line rounded-xl hover:bg-highlight transition-colors"
+                disabled={isSavingSentence}
+                className="px-4 py-2 border border-line rounded-xl hover:bg-highlight transition-colors disabled:opacity-50"
               >
                 Close
               </button>
+              {onSaveSentence && (
+                <button
+                  type="button"
+                  onClick={handleSaveSentence}
+                  disabled={isSavingSentence}
+                  className="px-4 py-2 rounded-xl bg-green-600 text-white hover:bg-green-700 transition-colors disabled:opacity-50"
+                >
+                  {isSavingSentence ? "Saving..." : "Add Sentence"}
+                </button>
+              )}
               <Link
                 href={`/vocabs?id=${existingVocab.id}`}
-                className="flex-1 px-4 py-2 rounded-xl bg-accent text-white hover:bg-ink transition-colors text-center"
+                className="px-4 py-2 rounded-xl bg-accent text-white hover:bg-ink transition-colors text-center"
                 onClick={handleClose}
               >
-                View in Vocabs
+                View Detail
               </Link>
             </div>
           </div>
         ) : (
           // Editable form for new vocab
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <>
+            <div className="mb-4 p-4 bg-highlight rounded-xl border border-line">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-2">
+                Sentence
+              </p>
+              <p className="text-base text-gray-900 leading-relaxed">{sentence}</p>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Word <span className="text-red-500">*</span>
@@ -236,6 +274,7 @@ export default function VocabModal({ isOpen, onClose, token, sentence, onSave, e
               </button>
             </div>
           </form>
+          </>
         )}
       </div>
     </div>

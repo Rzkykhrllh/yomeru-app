@@ -102,6 +102,21 @@ export default function TextsPage() {
     }
   };
 
+  const handleSaveSentence = async (vocabId: string, sentence: string) => {
+    if (!selectedTextId) return;
+
+    try {
+      await createTextVocab({
+        vocabId,
+        textId: selectedTextId,
+        sentence,
+      });
+    } catch (error) {
+      console.error("Error saving sentence:", error);
+      throw error; // Re-throw to let VocabModal handle the error toast
+    }
+  };
+
   return (
     <div className="flex h-screen">
       {/* Text List Sidebar */}
@@ -157,6 +172,7 @@ export default function TextsPage() {
             vocabs={vocabs || []}
             onUpdate={handleUpdate}
             onSaveVocab={handleSaveVocab}
+            onSaveSentence={handleSaveSentence}
           />
         ) : (
           <EmptyState

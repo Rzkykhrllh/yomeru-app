@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { postJson } from "@/lib/api";
 import { TokenizeResponse, Vocab } from "@/types";
 import VocabModal from "./VocabModal";
+import VocabTooltip from "./VocabTooltip";
 
 interface TextEditorProps {
   textId: string | null;
@@ -19,6 +20,7 @@ interface TextEditorProps {
     notes?: string;
     sentence: string;
   }) => Promise<void>;
+  onSaveSentence?: (vocabId: string, sentence: string) => Promise<void>;
 }
 
 export default function TextEditor({
@@ -29,6 +31,7 @@ export default function TextEditor({
   vocabs,
   onUpdate,
   onSaveVocab,
+  onSaveSentence,
 }: TextEditorProps) {
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
@@ -115,6 +118,11 @@ export default function TextEditor({
   const isKnownVocab = (token: TokenizeResponse["tokens"][0]) => {
     if (!vocabs) return false;
     return vocabs.some((vocab) => vocab.word === token.basic_form);
+  };
+
+  const getVocabData = (token: TokenizeResponse["tokens"][0]) => {
+    if (!vocabs) return null;
+    return vocabs.find((vocab) => vocab.word === token.basic_form) || null;
   };
 
   // Extract sentence around selected token
@@ -204,16 +212,32 @@ export default function TextEditor({
                 }
 
                 const isKnown = isKnownVocab(token);
+                const vocabData = getVocabData(token);
 
+                // If known vocab, wrap with tooltip
+                if (isKnown && vocabData) {
+                  return (
+                    <VocabTooltip
+                      key={index}
+                      furigana={vocabData.furigana || token.reading}
+                      meaning={vocabData.meaning || ""}
+                    >
+                      <span
+                        className="cursor-pointer rounded-md px-1 transition-all inline-block bg-accent-soft hover:bg-highlight-strong text-ink"
+                        onClick={() => handleTokenClick(token, index)}
+                      >
+                        {token.surface_form}
+                      </span>
+                    </VocabTooltip>
+                  );
+                }
+
+                // Unknown vocab - just show reading in browser title
                 return (
                   <span
                     key={index}
-                    title={`${token.reading}${isKnown ? " (Known)" : ""}`}
-                    className={`cursor-pointer rounded-md px-1 transition-all inline-block ${
-                      isKnown
-                        ? "bg-accent-soft hover:bg-highlight-strong text-ink"
-                        : "hover:bg-highlight"
-                    }`}
+                    title={token.reading}
+                    className="cursor-pointer rounded-md px-1 transition-all inline-block hover:bg-highlight"
                     onClick={() => handleTokenClick(token, index)}
                   >
                     {token.surface_form}
@@ -232,6 +256,7 @@ export default function TextEditor({
         onClose={() => setIsModalOpen(false)}
         onSave={onSaveVocab}
         existingVocab={existingVocab}
+        onSaveSentence={onSaveSentence}
       />
     </div>
   );
