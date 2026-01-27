@@ -82,21 +82,18 @@ export const getVocabDetails = async (req: Request, res: Response) => {
 
     // Format Appearances
     const appearances = vocab.textVocabs.map((tv) => ({
-      id: tv.id,
+      textId: tv.text.id,
+      textTitle: tv.text.title,
       sentence: tv.sentence,
-      text: tv.text,
-      createdAt: tv.createdAt,
     }));
 
     res.json({
-      vocab: {
-        id: vocab.id,
-        word: vocab.word,
-        furigana: vocab.furigana,
-        meaning: vocab.meaning,
-        notes: vocab.notes,
-        createdAt: vocab.createdAt,
-      },
+      id: vocab.id,
+      word: vocab.word,
+      furigana: vocab.furigana,
+      meaning: vocab.meaning,
+      notes: vocab.notes,
+      createdAt: vocab.createdAt,
       appearances,
     });
   } catch (error) {

@@ -1,70 +1,87 @@
 "use client";
-import { useVocabs } from "@/hooks";
+
+import { useVocabs, useDeleteVocab } from "@/hooks";
+import VocabListItem from "@/components/VocabListItem";
+import VocabDetail from "@/components/VocabDetail";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function VocabsPage() {
-  const { vocabs, isLoading, isError } = useVocabs();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedId = searchParams.get("id");
 
-  if (isLoading) {
-    return (
-      <div>
-        <h1 className="text-3xl font-bold mb-8">Vocabulary List</h1>
-        <div className="text-gray-600">Loading vocabularies...</div>
-      </div>
-    );
-  }
+  const { vocabs, isLoading: vocabsLoading, isError: vocabsError } = useVocabs();
+  const { deleteVocab } = useDeleteVocab();
 
-  if (isError) {
-    return (
-      <div>
-        <h1 className="text-3xl font-bold mb-8">Vocabulary List</h1>
-        <div className="text-red-600 bg-red-50 border border-red-200 rounded p-4">
-          Failed to load vocabularies. Please try again.
-        </div>
-      </div>
-    );
-  }
+  // Delete vocab
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteVocab(id);
+      // If deleted vocab was selected, clear selection
+      if (id === selectedId) {
+        router.push("/vocabs");
+      }
+    } catch (error) {
+      console.error("Error deleting vocab:", error);
+      alert("Failed to delete vocabulary. Please try again.");
+    }
+  };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-2">Vocabulary List</h1>
-      <p className="text-gray-600 mb-8">
-        {vocabs.length} {vocabs.length === 1 ? "word" : "words"} saved
-      </p>
-
-      {vocabs.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
-          <p className="text-gray-600 mb-2">No vocabulary saved yet</p>
-          <p className="text-sm text-gray-500">
-            Start by pasting Japanese text and clicking on words to save them
+    <div className="flex h-screen">
+      {/* Vocab List Sidebar */}
+      <div className="w-80 border-r border-gray-200 flex flex-col bg-white">
+        {/* Header */}
+        <div className="px-4 py-3 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">Vocabs</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            {vocabs?.length || 0} {vocabs?.length === 1 ? "word" : "words"}
           </p>
         </div>
-      ) : (
-        <div className="space-y-3">
-          {vocabs.map((vocab) => (
-            <div
-              key={vocab.id}
-              className="p-4 border border-gray-200 rounded-lg hover:shadow-sm transition"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-baseline gap-3 mb-2">
-                    <h3 className="text-2xl font-medium text-gray-900">{vocab.word}</h3>
-                    {vocab.furigana && (
-                      <span className="text-sm text-gray-500">{vocab.furigana}</span>
-                    )}
-                  </div>
-                  {vocab.meaning && <p className="text-gray-700 mb-1">{vocab.meaning}</p>}
-                  {vocab.notes && <p className="text-sm text-gray-500">{vocab.notes}</p>}
-                </div>
 
-                <div className="text-xs text-gray-400">
-                  {new Date(vocab.createdAt).toLocaleDateString()}
-                </div>
-              </div>
+        {/* List */}
+        <div className="flex-1 overflow-y-auto">
+          {vocabsLoading && (
+            <div className="p-4 text-center text-gray-500">Loading...</div>
+          )}
+
+          {vocabsError && (
+            <div className="p-4 text-center text-red-600">Failed to load vocabs</div>
+          )}
+
+          {vocabs && vocabs.length === 0 && (
+            <div className="p-4 text-center text-gray-500">
+              <p className="mb-2">No vocabulary saved yet</p>
+              <p className="text-xs">
+                Go to Texts and click on words to save them
+              </p>
             </div>
+          )}
+
+          {vocabs?.map((vocab) => (
+            <VocabListItem
+              key={vocab.id}
+              vocab={vocab}
+              isSelected={vocab.id === selectedId}
+              onClick={() => router.push(`/vocabs?id=${vocab.id}`)}
+              onDelete={() => handleDelete(vocab.id)}
+            />
           ))}
         </div>
-      )}
+      </div>
+
+      {/* Content Area */}
+      <div className="flex-1 bg-gray-50">
+        {selectedId ? (
+          <VocabDetail vocabId={selectedId} />
+        ) : (
+          <div className="h-full flex items-center justify-center text-gray-400">
+            <div className="text-center">
+              <p className="text-lg">Select a vocabulary to view details</p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
