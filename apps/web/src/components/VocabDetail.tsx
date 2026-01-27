@@ -59,27 +59,36 @@ export default function VocabDetail({ vocabId }: VocabDetailProps) {
         </h2>
 
         {vocab.appearances && vocab.appearances.length > 0 ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {vocab.appearances.map((appearance, index) => (
-              <div
+              <Link
                 key={index}
-                className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-shadow"
+                href={`/texts?id=${appearance.textId}`}
+                className="block p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md hover:border-blue-300 transition-all"
               >
-                <p className="text-lg text-gray-900 mb-2 leading-relaxed">
-                  {appearance.sentence}
+                {/* Text Title + Source */}
+                <div className="flex items-baseline gap-2 mb-2">
+                  <h3 className="font-medium text-gray-900">
+                    {appearance.textTitle || "Untitled"}
+                  </h3>
+                  {appearance.textSource && (
+                    <span className="text-sm text-gray-500">• {appearance.textSource}</span>
+                  )}
+                </div>
+
+                {/* Sentence */}
+                <p className="text-gray-700 leading-relaxed">
+                  "{appearance.sentence}"
                 </p>
-                <Link
-                  href={`/texts?id=${appearance.textId}`}
-                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-                >
-                  From: {appearance.textTitle || "Untitled"}
-                </Link>
-              </div>
+              </Link>
             ))}
           </div>
         ) : (
           <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
             <p className="text-gray-600">No appearances in saved texts yet</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Save this vocab from a text to see it here
+            </p>
           </div>
         )}
       </div>

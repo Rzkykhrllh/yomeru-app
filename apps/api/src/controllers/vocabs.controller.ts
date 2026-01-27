@@ -65,7 +65,7 @@ export const getVocabDetails = async (req: Request, res: Response) => {
               select: {
                 id: true,
                 title: true,
-                content: true,
+                source: true,
               },
             },
           },
@@ -84,6 +84,7 @@ export const getVocabDetails = async (req: Request, res: Response) => {
     const appearances = vocab.textVocabs.map((tv) => ({
       textId: tv.text.id,
       textTitle: tv.text.title,
+      textSource: tv.text.source,
       sentence: tv.sentence,
     }));
 

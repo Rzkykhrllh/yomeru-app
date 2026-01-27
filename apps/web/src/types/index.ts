@@ -54,6 +54,7 @@ export interface VocabDetailResponse extends Vocab {
   appearances: Array<{
     textId: string;
     textTitle: string;
+    textSource: string | null;
     sentence: string;
   }>;
 }
