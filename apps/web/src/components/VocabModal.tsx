@@ -41,13 +41,20 @@ export default function VocabModal({ isOpen, onClose, token, sentence, onSave }:
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevent default form submission
 
-    if (!word.trim()) {
+    if (!word.trim() || !furigana.trim() || !meaning.trim()) {
+      alert("Word, furigana, and meaning are required");
       return;
     }
 
     setIsSaving(true);
     try {
-      await onSave({ word, furigana, meaning, notes, sentence });
+      await onSave({
+        word: word.trim(),
+        furigana: furigana.trim(),
+        meaning: meaning.trim(),
+        notes: notes.trim() || undefined,
+        sentence,
+      });
       onClose();
     } catch (error) {
       console.error("Error saving vocab:", error);
@@ -99,26 +106,32 @@ export default function VocabModal({ isOpen, onClose, token, sentence, onSave }:
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Furigana</label>
-            <input
-              type="text"
-              value={furigana}
-              onChange={(e) => setFurigana(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="たべる"
-              disabled={isSaving}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Meaning</label>
-            <input
-              type="text"
-              value={meaning}
-              onChange={(e) => setMeaning(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="to eat"
-              disabled={isSaving}
-            />
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Furigana <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={furigana}
+                onChange={(e) => setFurigana(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="たべる"
+                required
+                disabled={isSaving}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Meaning <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={meaning}
+                onChange={(e) => setMeaning(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="to eat"
+                required
+                disabled={isSaving}
+              />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>

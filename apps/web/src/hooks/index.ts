@@ -8,3 +8,4 @@ export { useUpdateText } from "./useUpdateText";
 export { useDeleteText } from "./useDeleteText";
 export { useDeleteVocab } from "./useDeleteVocab";
 export { useCreateTextVocab } from "./useCreateTextVocab";
+export { useUpdateVocab } from "./useUpdateVocab";

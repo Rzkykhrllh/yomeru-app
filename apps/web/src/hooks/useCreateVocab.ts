@@ -5,8 +5,8 @@ import { mutate } from "swr";
 
 interface CreateVocabData {
   word: string;
-  furigana?: string;
-  meaning?: string;
+  furigana: string;
+  meaning: string;
   notes?: string;
 }
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { addVocab, getVocabDetails, getVocabs, deleteVocab } from '../controllers/vocabs.controller';
+import { addVocab, getVocabDetails, getVocabs, deleteVocab, updateVocab } from '../controllers/vocabs.controller';
 
 export const vocabsRouter = Router();
 
@@ -14,3 +14,6 @@ vocabsRouter.get('/:id',  getVocabDetails);
 
 // Delete /api/vocabs/:id - Delete vocab
 vocabsRouter.delete('/:id',  deleteVocab);
+
+// PUT /api/vocabs/:id - Update vocab
+vocabsRouter.put('/:id', updateVocab);

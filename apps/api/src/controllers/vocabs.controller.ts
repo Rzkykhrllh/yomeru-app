@@ -24,8 +24,8 @@ export const addVocab = async (req: Request, res: Response) => {
   try {
     const { word, furigana, meaning, notes } = req.body;
 
-    if (!word) {
-      return res.status(400).json({ error: "Word is required" });
+    if (!word || !furigana || !meaning) {
+      return res.status(400).json({ error: "Word, furigana, and meaning are required" });
     }
 
     // check if vocab already exists
@@ -40,8 +40,8 @@ export const addVocab = async (req: Request, res: Response) => {
     const vocab = await prisma.vocab.create({
       data: {
         word,
-        furigana: furigana || null,
-        meaning: meaning || null,
+        furigana,
+        meaning,
         notes: notes || null,
       },
     });
@@ -115,5 +115,31 @@ export const deleteVocab = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error deleting vocab:", error);
     res.status(500).json({ error: "Failed to delete vocab" });
+  }
+};
+
+export const updateVocab = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { word, furigana, meaning, notes } = req.body;
+
+    if (!word || !furigana || !meaning) {
+      return res.status(400).json({ error: "Word, furigana, and meaning are required" });
+    }
+
+    const vocab = await prisma.vocab.update({
+      where: { id },
+      data: {
+        word,
+        furigana,
+        meaning,
+        notes: notes || null,
+      },
+    });
+
+    res.json({ vocab });
+  } catch (error) {
+    console.error("Error updating vocab:", error);
+    res.status(500).json({ error: "Failed to update vocab" });
   }
 };
