@@ -1,59 +1,143 @@
 "use client";
 
-import { useTexts } from "@/hooks";
+import {
+  useTexts,
+  useVocabs,
+  useCreateText,
+  useUpdateText,
+  useDeleteText,
+  useCreateVocab,
+} from "@/hooks";
+import TextListItem from "@/components/TextListItem";
+import TextEditor from "@/components/TextEditor";
+import { PlusIcon } from "@heroicons/react/24/outline";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function TextsPage() {
-  const { texts, isLoading, isError } = useTexts();
-  if (isLoading) {
-    return (
-      <div>
-        <h1 className="text-3xl font-bold mb-8">Saved Texts</h1>
-        <div className="text-gray-600">Loading texts...</div>
-      </div>
-    );
-  }
-  if (isError) {
-    return (
-      <div>
-        <h1 className="text-3xl font-bold mb-8">Saved Texts</h1>
-        <div className="text-red-600 bg-red-50 border border-red-200 rounded p-4">
-          Failed to load texts. Please try again.
-        </div>
-      </div>
-    );
-  }
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedTextId = searchParams.get("id");
+
+  const { texts, isLoading: textsLoading, isError: textsError } = useTexts();
+  const { vocabs } = useVocabs();
+  const { createText } = useCreateText();
+  const { updateText } = useUpdateText();
+  const { deleteText } = useDeleteText();
+  const { createVocab } = useCreateVocab();
+
+  const selectedText = texts?.find((text) => text.id === selectedTextId) || null;
+
+  const handleNewText = async () => {
+    try {
+      const newText = await createText({
+        title: "",
+        content: "",
+        source: new Date().toLocaleDateString(),
+      });
+      router.push(`/texts?id=${newText.id}`);
+    } catch (error) {
+      console.error("Error creating new text:", error);
+      alert("Failed to create new text. Please try again.");
+    }
+  };
+
+  // Update text / auto-save
+  const handleUpdate = async (data: { title: string; content: string; source: string }) => {
+    if (!selectedTextId) return;
+
+    try {
+      await updateText(selectedTextId, data);
+    } catch (error) {
+      console.error("Error updating text:", error);
+      alert("Failed to update text. Please try again.");
+    }
+  };
+
+  // Delete Text
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteText(id);
+      if (id === selectedTextId) router.push("/texts");
+    } catch (error) {
+      console.error("Error deleting text:", error);
+      alert("Failed to delete text. Please try again.");
+    }
+  };
+
+  const handleSaveVocab = async (data: {
+    word: string;
+    furigana: string;
+    meaning: string;
+    notes?: string;
+  }) => {
+    try {
+      await createVocab(data);
+    } catch (error) {
+      console.error("Error saving vocab:", error);
+      alert("Failed to save vocab. Please try again.");
+    }
+  };
+
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-2">Saved Texts</h1>
-      <p className="text-gray-600 mb-8">
-        {texts.length} {texts.length === 1 ? "text" : "texts"} saved
-      </p>
-      {texts.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
-          <p className="text-gray-600 mb-2">No texts saved yet</p>
-          <p className="text-sm text-gray-500">
-            Paste Japanese text on the home page to get started
-          </p>
+    <div className="flex h-screen">
+      {/* Text List Sidebar */}
+      <div className="w-80 border-r border-gray-200 flex flex-col bg-white">
+        {/* Header */}
+        <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">Texts</h2>
+          <button
+            onClick={handleNewText}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            title="New text"
+          >
+            <PlusIcon className="w-5 h-5 text-gray-600" />
+          </button>
         </div>
-      ) : (
-        <div className="space-y-3">
-          {texts.map((text) => (
-            <div
-              key={text.id}
-              className="p-5 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <h3 className="text-xl font-semibold text-gray-900">{text.title}</h3>
-                <div className="text-xs text-gray-400">
-                  {new Date(text.created_at).toLocaleDateString()}
-                </div>
-              </div>
-              <p className="text-gray-700 line-clamp-3 leading-relaxed mb-2">{text.content}</p>
-              {text.source && <p className="text-sm text-gray-500">Source: {text.source}</p>}
+        {/* List */}
+        <div className="flex-1 overflow-y-auto">
+          {textsLoading && (
+            <div className="p-4 text-center text-gray-500">Loading...</div>
+          )}
+          {textsError && (
+            <div className="p-4 text-center text-red-600">Failed to load texts</div>
+          )}
+          {texts && texts.length === 0 && (
+            <div className="p-4 text-center text-gray-500">
+              No texts yet. Create your first one!
             </div>
+          )}
+          {texts?.map((text) => (
+            <TextListItem
+              key={text.id}
+              text={text}
+              isSelected={text.id === selectedTextId}
+              onClick={() => router.push(`/texts?id=${text.id}`)}
+              onDelete={() => handleDelete(text.id)}
+            />
           ))}
         </div>
-      )}
+      </div>
+      {/* Content Area */}
+      <div className="flex-1 bg-gray-50">
+        {selectedText ? (
+          <TextEditor
+            key={selectedText.id} // Force re-mount on text change
+            textId={selectedText.id}
+            initialTitle={selectedText.title || ""}
+            initialContent={selectedText.content}
+            initialSource={selectedText.source || ""}
+            vocabs={vocabs || []}
+            onUpdate={handleUpdate}
+            onSaveVocab={handleSaveVocab}
+          />
+        ) : (
+          <div className="h-full flex items-center justify-center text-gray-400">
+            <div className="text-center">
+              <p className="text-lg">Select your text or create a new one</p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

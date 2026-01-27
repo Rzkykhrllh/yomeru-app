@@ -12,30 +12,30 @@ export interface Token {
 }
 
 export interface Vocab {
-  id: number;
+  id: string;
   word: string;
   furigana: string | null;
   meaning: string | null;
   notes: string | null;
-  created_at: string;
+  createdAt: string;
 }
 
 // Text yang disimpan user
 export interface Text {
-  id: number;
-  title: string;
+  id: string;
+  title: string | null;
   content: string; // raw Japanese text
   source: string | null; // sumber text (optional)
-  created_at: string;
+  createdAt: string;
 }
 
 // Junction table interface
 export interface TextVocab {
-  id: number;
-  text_id: number;
-  vocab_id: number;
+  id: string;
+  textId: string;
+  vocabId: string;
   sentence: string;
-  created_at: string;
+  createdAt: string;
 }
 
 export interface TokenizeResponse {
@@ -52,15 +52,15 @@ export interface TextsResponse {
 
 export interface VocabDetailResponse extends Vocab {
   appearances: Array<{
-    text_id: number;
-    text_title: string;
+    textId: string;
+    textTitle: string;
     sentence: string;
   }>;
 }
 
 export interface TextDetailResponse extends Text {
   vocabs: Array<{
-    vocab_id: number;
+    vocabId: string;
     word: string;
     furigana: string | null;
     sentence: string;

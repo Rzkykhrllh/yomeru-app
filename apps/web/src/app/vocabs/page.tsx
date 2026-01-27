@@ -58,7 +58,7 @@ export default function VocabsPage() {
                 </div>
 
                 <div className="text-xs text-gray-400">
-                  {new Date(vocab.created_at).toLocaleDateString()}
+                  {new Date(vocab.createdAt).toLocaleDateString()}
                 </div>
               </div>
             </div>

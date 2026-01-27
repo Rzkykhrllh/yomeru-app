@@ -26,7 +26,7 @@ export default function TextDetailPage({ params }: { params: { id: string } }) {
         <h1 className="text-3xl font-bold text-gray-900 mb-2">{text.title}</h1>
         {text.source && <p className="text-gray-600 mb-4">Source: {text.source}</p>}
         <p className="text-sm text-gray-500">
-          Saved on {new Date(text.created_at).toLocaleDateString()}
+          Saved on {new Date(text.createdAt).toLocaleDateString()}
         </p>
       </div>
       <div className="mb-8 p-6 bg-white border border-gray-200 rounded-lg">

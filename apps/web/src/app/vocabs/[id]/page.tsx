@@ -43,7 +43,7 @@ export default function VocabDetailPage({ params }: { params: { id: string } }) 
             {vocab.appearances.map((appearance, index) => (
               <div key={index} className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
                 <p className="text-lg text-gray-900 mb-2 leading-relaxed">{appearance.sentence}</p>
-                <p className="text-sm text-gray-500">From: {appearance.text_title}</p>
+                <p className="text-sm text-gray-500">From: {appearance.textTitle}</p>
               </div>
             ))}
           </div>

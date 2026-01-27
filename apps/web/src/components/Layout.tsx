@@ -1,36 +1,30 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
-
 interface LayoutProps {
   children: ReactNode;
 }
-
 export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
-
   const navItems = [
-    { href: "/", label: "New Text", icon: "📝" },
+    { href: "/texts", label: "Texts", icon: "📝" },
     { href: "/vocabs", label: "Vocabs", icon: "📚" },
-    { href: "/texts", label: "Texts", icon: "📄" },
   ];
-
   return (
     <div className="min-h-screen bg-white">
-      {/* Desktop: 3-column layout */}
+      {/* Desktop: Icon bar + content */}
       <div className="hidden md:flex h-screen">
         {/* Icon Bar */}
-        <div className="w-16 bg-gray-50 border-r border-gray-200 flex flex-col items-center py-6 gap-6">
+        <div className="w-16 bg-gray-900 flex flex-col items-center py-6 gap-6">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={`w-12 h-12 flex items-center justify-center rounded-lg transition-colors ${
-                pathname === item.href
-                  ? "bg-blue-100 text-blue-600"
-                  : "text-gray-600 hover:bg-gray-100"
+                pathname.startsWith(item.href)
+                  ? "bg-gray-700 text-white"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800"
               }`}
               title={item.label}
             >
@@ -38,24 +32,9 @@ export default function Layout({ children }: LayoutProps) {
             </Link>
           ))}
         </div>
-
-        {/* List Sidebar */}
-        <div className="w-64 bg-gray-50 border-r border-gray-200 overflow-y-auto">
-          <div className="p-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              {navItems.find((item) => item.href === pathname)?.label || "Navigation"}
-            </h2>
-            {/* Placeholder for list items - akan diisi per page */}
-            <div className="text-sm text-gray-500">Select an item to view details</div>
-          </div>
-        </div>
-
-        {/* Content Area */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-8 max-w-5xl mx-auto">{children}</div>
-        </div>
+        {/* Content Area - Full width, pages control their own layout */}
+        <div className="flex-1 overflow-hidden">{children}</div>
       </div>
-
       {/* Mobile: Stack layout */}
       <div className="md:hidden">
         {/* Top navigation bar */}
@@ -66,7 +45,7 @@ export default function Layout({ children }: LayoutProps) {
                 key={item.href}
                 href={item.href}
                 className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors ${
-                  pathname === item.href ? "text-blue-600" : "text-gray-600"
+                  pathname.startsWith(item.href) ? "text-blue-600" : "text-gray-600"
                 }`}
               >
                 <span className="text-xl">{item.icon}</span>
@@ -75,9 +54,8 @@ export default function Layout({ children }: LayoutProps) {
             ))}
           </div>
         </div>
-
         {/* Content */}
-        <div className="p-4">{children}</div>
+        <div>{children}</div>
       </div>
     </div>
   );
