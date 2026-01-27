@@ -3,12 +3,17 @@
 import { useVocabs, useDeleteVocab } from "@/hooks";
 import VocabListItem from "@/components/VocabListItem";
 import VocabDetail from "@/components/VocabDetail";
+import EmptyState from "@/components/EmptyState";
+import ListSkeleton from "@/components/ListSkeleton";
+import { BookOpenIcon } from "@heroicons/react/24/outline";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useToast } from "@/contexts/ToastContext";
 
 export default function VocabsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedId = searchParams.get("id");
+  const { showToast } = useToast();
 
   const { vocabs, isLoading: vocabsLoading, isError: vocabsError } = useVocabs();
   const { deleteVocab } = useDeleteVocab();
@@ -21,41 +26,39 @@ export default function VocabsPage() {
       if (id === selectedId) {
         router.push("/vocabs");
       }
+      showToast("Vocabulary deleted successfully", "success");
     } catch (error) {
       console.error("Error deleting vocab:", error);
-      alert("Failed to delete vocabulary. Please try again.");
+      showToast("Failed to delete vocabulary. Please try again.", "error");
     }
   };
 
   return (
     <div className="flex h-screen">
       {/* Vocab List Sidebar */}
-      <div className="w-80 border-r border-gray-200 flex flex-col bg-white">
+      <div className="w-80 border-r border-line bg-panel flex flex-col">
         {/* Header */}
-        <div className="px-4 py-3 border-b border-gray-200">
+        <div className="px-5 py-4 border-b border-line bg-panel">
           <h2 className="text-lg font-semibold text-gray-900">Vocabs</h2>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm muted mt-1">
             {vocabs?.length || 0} {vocabs?.length === 1 ? "word" : "words"}
           </p>
         </div>
 
         {/* List */}
-        <div className="flex-1 overflow-y-auto">
-          {vocabsLoading && (
-            <div className="p-4 text-center text-gray-500">Loading...</div>
-          )}
+        <div className="flex-1 overflow-y-auto p-3 space-y-3">
+          {vocabsLoading && <ListSkeleton count={5} />}
 
           {vocabsError && (
             <div className="p-4 text-center text-red-600">Failed to load vocabs</div>
           )}
 
           {vocabs && vocabs.length === 0 && (
-            <div className="p-4 text-center text-gray-500">
-              <p className="mb-2">No vocabulary saved yet</p>
-              <p className="text-xs">
-                Go to Texts and click on words to save them
-              </p>
-            </div>
+            <EmptyState
+              icon={BookOpenIcon}
+              title="No vocabulary yet"
+              description="Go to Texts and click on Japanese words to save them to your vocabulary list"
+            />
           )}
 
           {vocabs?.map((vocab) => (
@@ -71,15 +74,15 @@ export default function VocabsPage() {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 bg-gray-50">
+      <div className="flex-1 bg-surface">
         {selectedId ? (
           <VocabDetail vocabId={selectedId} />
         ) : (
-          <div className="h-full flex items-center justify-center text-gray-400">
-            <div className="text-center">
-              <p className="text-lg">Select a vocabulary to view details</p>
-            </div>
-          </div>
+          <EmptyState
+            icon={BookOpenIcon}
+            title="No vocabulary selected"
+            description="Select a word from the sidebar to view its details and example sentences"
+          />
         )}
       </div>
     </div>

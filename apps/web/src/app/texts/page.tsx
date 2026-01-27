@@ -11,13 +11,17 @@ import {
 } from "@/hooks";
 import TextListItem from "@/components/TextListItem";
 import TextEditor from "@/components/TextEditor";
-import { PlusIcon } from "@heroicons/react/24/outline";
+import EmptyState from "@/components/EmptyState";
+import ListSkeleton from "@/components/ListSkeleton";
+import { PlusIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useToast } from "@/contexts/ToastContext";
 
 export default function TextsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedTextId = searchParams.get("id");
+  const { showToast } = useToast();
 
   const { texts, isLoading: textsLoading, isError: textsError } = useTexts();
   const { vocabs } = useVocabs();
@@ -39,7 +43,7 @@ export default function TextsPage() {
       router.push(`/texts?id=${newText.id}`);
     } catch (error) {
       console.error("Error creating new text:", error);
-      alert("Failed to create new text. Please try again.");
+      showToast("Failed to create new text. Please try again.", "error");
     }
   };
 
@@ -51,7 +55,7 @@ export default function TextsPage() {
       await updateText(selectedTextId, data);
     } catch (error) {
       console.error("Error updating text:", error);
-      alert("Failed to update text. Please try again.");
+      showToast("Failed to update text. Please try again.", "error");
     }
   };
 
@@ -60,9 +64,10 @@ export default function TextsPage() {
     try {
       await deleteText(id);
       if (id === selectedTextId) router.push("/texts");
+      showToast("Text deleted successfully", "success");
     } catch (error) {
       console.error("Error deleting text:", error);
-      alert("Failed to delete text. Please try again.");
+      showToast("Failed to delete text. Please try again.", "error");
     }
   };
 
@@ -90,39 +95,44 @@ export default function TextsPage() {
         textId: selectedTextId,
         sentence: data.sentence,
       });
+      showToast("Vocabulary saved successfully", "success");
     } catch (error) {
       console.error("Error saving vocab:", error);
-      alert("Failed to save vocab. Please try again.");
+      showToast("Failed to save vocab. Please try again.", "error");
     }
   };
 
   return (
     <div className="flex h-screen">
       {/* Text List Sidebar */}
-      <div className="w-80 border-r border-gray-200 flex flex-col bg-white">
+      <div className="w-80 border-r border-line bg-panel flex flex-col">
         {/* Header */}
-        <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+        <div className="px-5 py-4 border-b border-line bg-panel flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">Texts</h2>
           <button
             onClick={handleNewText}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 text-muted hover:text-ink hover:bg-highlight transition-colors rounded-lg"
             title="New text"
           >
-            <PlusIcon className="w-5 h-5 text-gray-600" />
+            <PlusIcon className="w-5 h-5" />
           </button>
         </div>
         {/* List */}
-        <div className="flex-1 overflow-y-auto">
-          {textsLoading && (
-            <div className="p-4 text-center text-gray-500">Loading...</div>
-          )}
+        <div className="flex-1 overflow-y-auto p-3 space-y-3">
+          {textsLoading && <ListSkeleton count={5} />}
           {textsError && (
             <div className="p-4 text-center text-red-600">Failed to load texts</div>
           )}
           {texts && texts.length === 0 && (
-            <div className="p-4 text-center text-gray-500">
-              No texts yet. Create your first one!
-            </div>
+            <EmptyState
+              icon={DocumentTextIcon}
+              title="No texts yet"
+              description="Start by creating your first Japanese text to begin learning vocabulary"
+              action={{
+                label: "Create text",
+                onClick: handleNewText,
+              }}
+            />
           )}
           {texts?.map((text) => (
             <TextListItem
@@ -136,7 +146,7 @@ export default function TextsPage() {
         </div>
       </div>
       {/* Content Area */}
-      <div className="flex-1 bg-gray-50">
+      <div className="flex-1 bg-surface">
         {selectedText ? (
           <TextEditor
             key={selectedText.id} // Force re-mount on text change
@@ -149,11 +159,11 @@ export default function TextsPage() {
             onSaveVocab={handleSaveVocab}
           />
         ) : (
-          <div className="h-full flex items-center justify-center text-gray-400">
-            <div className="text-center">
-              <p className="text-lg">Select your text or create a new one</p>
-            </div>
-          </div>
+          <EmptyState
+            icon={DocumentTextIcon}
+            title="No text selected"
+            description="Select a text from the sidebar or create a new one to get started"
+          />
         )}
       </div>
     </div>
