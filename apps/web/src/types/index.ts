@@ -9,6 +9,7 @@ export interface Token {
   basic_form: string; // bentuk dasar (e.g., "食べる")
   reading: string; // cara baca katakana (e.g., "タベタ")
   pronunciation: string;
+  whitespace_before?: string; // whitespace/formatting before this token
 }
 
 export interface Vocab {
