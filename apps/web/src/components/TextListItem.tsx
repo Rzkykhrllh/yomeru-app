@@ -31,28 +31,29 @@ export default function TextListItem({ text, isSelected, onClick, onDelete }: Te
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`
-        group relative px-4 py-3 cursor-pointer border-b border-gray-200
-        hover:bg-gray-50 transition-colors
-        ${isSelected ? "bg-blue-50 border-l-4 border-l-blue-500" : ""}
+        group relative pl-5 pr-12 py-4 cursor-pointer transition-colors
+        rounded-2xl border border-line bg-card shadow-card
+        hover:bg-highlight hover:shadow-card-hover
+        ${isSelected ? "bg-accent-soft border-highlight-strong shadow-card-hover" : ""}
       `}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <h3 className="font-medium text-gray-900 truncate">{text.title || "Untitled"}</h3>
-          <p className="text-sm text-gray-600 line-clamp-2 mt-1">{preview}</p>
-          {text.source && <p className="text-sm text-gray-400 mt-1">{text.source}</p>}
+          <p className="text-sm text-muted line-clamp-2 mt-1">{preview}</p>
+          {text.source && <p className="text-sm text-muted mt-1">{text.source}</p>}
         </div>
 
         {/* Delete Button */}
-        {isHovered && (
-          <button
-            className="flex-shrink-0 p-1 text-gray-400 hover:text-red-600 transition-colors"
-            onClick={handleDelete}
-            title="Delete Text"
-          >
-            <TrashIcon className="h-5 w-5" />
-          </button>
-        )}
+        <button
+          className={`absolute top-3 right-3 p-1 text-muted hover:text-ink transition-opacity ${
+            isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+          onClick={handleDelete}
+          title="Delete Text"
+        >
+          <TrashIcon className="h-5 w-5" />
+        </button>
       </div>
     </div>
   );

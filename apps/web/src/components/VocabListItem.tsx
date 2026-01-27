@@ -27,9 +27,10 @@ export default function VocabListItem({ vocab, isSelected, onClick, onDelete }: 
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`
-        group relative px-4 py-3 cursor-pointer border-b border-gray-200
-        hover:bg-gray-50 transition-colors
-        ${isSelected ? "bg-blue-50 border-l-4 border-l-blue-500" : ""}
+        group relative pl-5 pr-12 py-4 cursor-pointer transition-colors
+        rounded-2xl border border-line bg-card shadow-card
+        hover:bg-highlight hover:shadow-card-hover
+        ${isSelected ? "bg-accent-soft border-highlight-strong shadow-card-hover" : ""}
       `}
     >
       <div className="flex items-start justify-between gap-2">
@@ -37,24 +38,24 @@ export default function VocabListItem({ vocab, isSelected, onClick, onDelete }: 
           <div className="flex items-baseline gap-2 mb-1">
             <h3 className="text-xl font-medium text-gray-900">{vocab.word}</h3>
             {vocab.furigana && (
-              <span className="text-sm text-gray-500">{vocab.furigana}</span>
+              <span className="text-sm text-muted">{vocab.furigana}</span>
             )}
           </div>
           {vocab.meaning && (
-            <p className="text-sm text-gray-600 truncate">{vocab.meaning}</p>
+            <p className="text-sm text-muted truncate">{vocab.meaning}</p>
           )}
         </div>
 
         {/* Delete button - show on hover */}
-        {isHovered && (
-          <button
-            onClick={handleDelete}
-            className="flex-shrink-0 p-1 text-gray-400 hover:text-red-600 transition-colors"
-            title="Delete vocab"
-          >
-            <TrashIcon className="w-5 h-5" />
-          </button>
-        )}
+        <button
+          onClick={handleDelete}
+          className={`absolute top-3 right-3 p-1 text-muted hover:text-ink transition-opacity ${
+            isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+          title="Delete vocab"
+        >
+          <TrashIcon className="w-5 h-5" />
+        </button>
       </div>
     </div>
   );
