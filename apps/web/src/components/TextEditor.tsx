@@ -41,6 +41,7 @@ export default function TextEditor({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedToken, setSelectedToken] = useState<TokenizeResponse["tokens"][0] | null>(null);
   const [selectedTokenIndex, setSelectedTokenIndex] = useState<number | null>(null);
+  const [existingVocab, setExistingVocab] = useState<Vocab | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -143,6 +144,11 @@ export default function TextEditor({
   const handleTokenClick = (token: TokenizeResponse["tokens"][0], index: number) => {
     setSelectedToken(token);
     setSelectedTokenIndex(index);
+    
+    // Find existing vocab for this token
+    const existing = vocabs.find((vocab) => vocab.word === token.basic_form);
+    setExistingVocab(existing || null);
+    
     setIsModalOpen(true);
   };
 
@@ -225,6 +231,7 @@ export default function TextEditor({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={onSaveVocab}
+        existingVocab={existingVocab}
       />
     </div>
   );
