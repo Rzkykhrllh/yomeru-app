@@ -18,14 +18,15 @@ export const addText = async (req: Request, res: Response) => {
   try {
     const { title, content, source } = req.body;
 
-    if (!content) {
+    // Allow empty content for draft texts
+    if (content === undefined || content === null) {
       return res.status(400).json({ error: "Content is required" });
     }
 
     const text = await prisma.text.create({
       data: {
         title: title || null,
-        content,
+        content: content || "", // Allow empty string
         source: source || null,
       },
     });

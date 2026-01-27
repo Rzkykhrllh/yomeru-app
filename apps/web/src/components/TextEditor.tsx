@@ -34,6 +34,7 @@ export default function TextEditor({
   const [source, setSource] = useState(initialSource);
   const [tokens, setTokens] = useState<TokenizeResponse["tokens"]>([]);
   const [loading, setLoading] = useState(false);
+  const [isTitleManuallyEdited, setIsTitleManuallyEdited] = useState(false);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,6 +48,7 @@ export default function TextEditor({
     setTitle(initialTitle);
     setContent(initialContent);
     setSource(initialSource);
+    setIsTitleManuallyEdited(!!initialTitle); // If has initial title, consider it edited
   }, [initialTitle, initialContent, initialSource]);
 
   // Tokenize Text
@@ -98,15 +100,15 @@ export default function TextEditor({
     };
   }, [title, content, source, textId, onUpdate]);
 
-  // Auto-fill title from first line if empty
+  // Auto-fill title from first line if not manually edited
   useEffect(() => {
-    if (!title && content) {
+    if (!isTitleManuallyEdited && content) {
       const firstLine = content.split(/[。\n]/)[0].slice(0, 50);
       if (firstLine) {
         setTitle(firstLine);
       }
     }
-  }, [content, title]);
+  }, [content, isTitleManuallyEdited]);
 
   const isKnownVocab = (token: TokenizeResponse["tokens"][0]) => {
     if (!vocabs) return false;
@@ -151,7 +153,10 @@ export default function TextEditor({
           type="text"
           value={title}
           placeholder="Untitled"
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            setIsTitleManuallyEdited(true); // Mark as manually edited
+          }}
           className="w-full text-3xl font-bold border-none outline-none focus:ring-0 p-0"
         />
         <input
