@@ -17,6 +17,7 @@ interface TextEditorProps {
     furigana: string;
     meaning: string;
     notes?: string;
+    sentence: string;
   }) => Promise<void>;
 }
 

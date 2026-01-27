@@ -7,6 +7,7 @@ import {
   useUpdateText,
   useDeleteText,
   useCreateVocab,
+  useCreateTextVocab,
 } from "@/hooks";
 import TextListItem from "@/components/TextListItem";
 import TextEditor from "@/components/TextEditor";
@@ -24,6 +25,7 @@ export default function TextsPage() {
   const { updateText } = useUpdateText();
   const { deleteText } = useDeleteText();
   const { createVocab } = useCreateVocab();
+  const { createTextVocab } = useCreateTextVocab();
 
   const selectedText = texts?.find((text) => text.id === selectedTextId) || null;
 
@@ -69,9 +71,25 @@ export default function TextsPage() {
     furigana: string;
     meaning: string;
     notes?: string;
+    sentence: string;
   }) => {
+    if (!selectedTextId) return;
+
     try {
-      await createVocab(data);
+      // First, create the vocab
+      const vocab = await createVocab({
+        word: data.word,
+        furigana: data.furigana,
+        meaning: data.meaning,
+        notes: data.notes,
+      });
+
+      // Then, create the text-vocab link with sentence
+      await createTextVocab({
+        vocabId: vocab.id,
+        textId: selectedTextId,
+        sentence: data.sentence,
+      });
     } catch (error) {
       console.error("Error saving vocab:", error);
       alert("Failed to save vocab. Please try again.");

@@ -17,6 +17,7 @@ interface VocabModalProps {
     furigana: string;
     meaning: string;
     notes?: string;
+    sentence: string;
   }) => Promise<void>;
 }
 
@@ -46,7 +47,7 @@ export default function VocabModal({ isOpen, onClose, token, sentence, onSave }:
 
     setIsSaving(true);
     try {
-      await onSave({ word, furigana, meaning, notes });
+      await onSave({ word, furigana, meaning, notes, sentence });
       onClose();
     } catch (error) {
       console.error("Error saving vocab:", error);
