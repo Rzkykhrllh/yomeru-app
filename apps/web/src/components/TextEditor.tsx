@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { postJson } from "@/lib/api";
 import { TokenizeResponse, Vocab } from "@/types";
 import VocabModal from "./VocabModal";
@@ -133,19 +133,30 @@ export default function TextEditor({
     let start = tokenIndex;
     let end = tokenIndex;
 
-    while (start > 0 && !punctuations.includes(tokens[start - 1].surface_form)) {
+    // Find sentence boundaries (stop at punctuation or newline)
+    while (start > 0 && 
+           !punctuations.includes(tokens[start - 1].surface_form) &&
+           tokens[start - 1].surface_form !== "\n") {
       start--;
     }
-    while (end < tokens.length - 1 && !punctuations.includes(tokens[end].surface_form)) {
+    while (end < tokens.length - 1 && 
+           !punctuations.includes(tokens[end].surface_form) &&
+           tokens[end].surface_form !== "\n") {
       end++;
     }
     if (end < tokens.length && punctuations.includes(tokens[end].surface_form)) {
       end++;
     }
 
+    // Reconstruct sentence with whitespace preserved
     return tokens
       .slice(start, end)
-      .map((t) => t.surface_form)
+      .map((t) => {
+        // Skip newline tokens in sentence
+        if (t.surface_form === "\n") return "";
+        // Include whitespace before + token
+        return (t.whitespace_before || "") + t.surface_form;
+      })
       .join("");
   };
 
@@ -205,8 +216,9 @@ export default function TextEditor({
         {/* TODO: Continue from here */}
         {tokens.length > 0 && (
           <div className="p-5 rounded-2xl border border-line bg-card shadow-card">
-            <div className="text-xl leading-relaxed text-gray-900">
+            <div className="text-xl leading-relaxed text-gray-900 whitespace-pre-wrap">
               {tokens.map((token, index) => {
+                // Handle newlines
                 if (token.surface_form === "\n") {
                   return <br key={index} />;
                 }
@@ -214,34 +226,45 @@ export default function TextEditor({
                 const isKnown = isKnownVocab(token);
                 const vocabData = getVocabData(token);
 
+                // Render whitespace before token (preserves formatting)
+                const whitespaceElement = token.whitespace_before ? (
+                  <span key={`ws-${index}`} className="whitespace-pre">
+                    {token.whitespace_before}
+                  </span>
+                ) : null;
+
                 // If known vocab, wrap with tooltip
                 if (isKnown && vocabData) {
                   return (
-                    <VocabTooltip
-                      key={index}
-                      furigana={vocabData.furigana || token.reading}
-                      meaning={vocabData.meaning || ""}
-                    >
-                      <span
-                        className="cursor-pointer rounded-md px-1 transition-all inline-block bg-accent-soft hover:bg-highlight-strong text-ink"
-                        onClick={() => handleTokenClick(token, index)}
+                    <React.Fragment key={index}>
+                      {whitespaceElement}
+                      <VocabTooltip
+                        furigana={vocabData.furigana || token.reading}
+                        meaning={vocabData.meaning || ""}
                       >
-                        {token.surface_form}
-                      </span>
-                    </VocabTooltip>
+                        <span
+                          className="cursor-pointer rounded-md px-1 transition-all inline-block bg-accent-soft hover:bg-highlight-strong text-ink"
+                          onClick={() => handleTokenClick(token, index)}
+                        >
+                          {token.surface_form}
+                        </span>
+                      </VocabTooltip>
+                    </React.Fragment>
                   );
                 }
 
                 // Unknown vocab - just show reading in browser title
                 return (
-                  <span
-                    key={index}
-                    title={token.reading}
-                    className="cursor-pointer rounded-md px-1 transition-all inline-block hover:bg-highlight"
-                    onClick={() => handleTokenClick(token, index)}
-                  >
-                    {token.surface_form}
-                  </span>
+                  <React.Fragment key={index}>
+                    {whitespaceElement}
+                    <span
+                      title={token.reading}
+                      className="cursor-pointer rounded-md px-1 transition-all inline-block hover:bg-highlight"
+                      onClick={() => handleTokenClick(token, index)}
+                    >
+                      {token.surface_form}
+                    </span>
+                  </React.Fragment>
                 );
               })}
             </div>
