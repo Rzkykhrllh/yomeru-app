@@ -40,7 +40,10 @@ export default function TextEditor({
   const [tokens, setTokens] = useState<TokenizeResponse["tokens"]>([]);
   const [loading, setLoading] = useState(false);
   const [isTitleManuallyEdited, setIsTitleManuallyEdited] = useState(false);
-  const [editorMode, setEditorMode] = useState<"edit" | "view">("edit"); // New: editor mode
+  // Set initial mode: view if has content, edit if empty
+  const [editorMode, setEditorMode] = useState<"edit" | "view">(
+    initialContent.trim() ? "view" : "edit"
+  );
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -57,10 +60,9 @@ export default function TextEditor({
     setSource(initialSource);
     setIsTitleManuallyEdited(!!initialTitle); // If has initial title, consider it edited
     
-    // If there's content, tokenize it and set to view mode
+    // If there's content, tokenize it (mode already set to view on init)
     if (initialContent.trim()) {
       tokenizeText(initialContent);
-      setEditorMode("view");
     }
   }, [initialTitle, initialContent, initialSource]);
 
@@ -204,7 +206,7 @@ export default function TextEditor({
   return (
       <div className="h-full flex flex-col">
         {/* Title */}
-        <div className="border-b border-line px-6 py-5 bg-panel">
+        <div className="border-b border-line px-11 py-5 bg-panel">
           <input
             type="text"
             value={title}
@@ -225,7 +227,7 @@ export default function TextEditor({
         </div>
 
       {/* Content */}
-        <div className="flex-1 flex flex-col px-6 py-6 gap-4 overflow-hidden">
+        <div className="flex-1 flex flex-col px-11 py-6 gap-4 overflow-y-auto">
           {/* Mode Toggle Switch */}
           <div className="inline-flex items-center rounded-full bg-highlight p-1 border border-line self-start">
             <button
@@ -264,7 +266,7 @@ export default function TextEditor({
             />
           ) : (
             // View Mode: Tokenized text
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1">
               {loading && (
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-spin h-8 w-8 border-2 border-accent border-t-transparent rounded-full"></div>
