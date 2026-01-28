@@ -47,34 +47,32 @@ export default function VocabsPage() {
 
         {/* List */}
         <div className="flex-1 overflow-y-auto p-3 space-y-3">
-          {vocabsLoading && <ListSkeleton count={5} />}
-
-          {vocabsError && (
+          {vocabsLoading ? (
+            <ListSkeleton count={5} />
+          ) : vocabsError ? (
             <div className="p-4 text-center text-red-600">Failed to load vocabs</div>
-          )}
-
-          {vocabs && vocabs.length === 0 && (
+          ) : vocabs && vocabs.length === 0 ? (
             <EmptyState
               icon={BookOpenIcon}
               title="No vocabulary yet"
               description="Go to Texts and click on Japanese words to save them to your vocabulary list"
             />
+          ) : (
+            vocabs?.map((vocab) => (
+              <VocabListItem
+                key={vocab.id}
+                vocab={vocab}
+                isSelected={vocab.id === selectedId}
+                onClick={() => router.push(`/vocabs?id=${vocab.id}`)}
+                onDelete={() => handleDelete(vocab.id)}
+              />
+            ))
           )}
-
-          {vocabs?.map((vocab) => (
-            <VocabListItem
-              key={vocab.id}
-              vocab={vocab}
-              isSelected={vocab.id === selectedId}
-              onClick={() => router.push(`/vocabs?id=${vocab.id}`)}
-              onDelete={() => handleDelete(vocab.id)}
-            />
-          ))}
         </div>
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 bg-surface">
+      <div className={`flex-1 bg-surface ${!selectedId ? 'flex items-center justify-center' : ''}`}>
         {selectedId ? (
           <VocabDetail vocabId={selectedId} />
         ) : (

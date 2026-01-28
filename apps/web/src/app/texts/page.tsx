@@ -134,11 +134,11 @@ export default function TextsPage() {
         </div>
         {/* List */}
         <div className="flex-1 overflow-y-auto p-3 space-y-3">
-          {textsLoading && <ListSkeleton count={5} />}
-          {textsError && (
+          {textsLoading ? (
+            <ListSkeleton count={5} />
+          ) : textsError ? (
             <div className="p-4 text-center text-red-600">Failed to load texts</div>
-          )}
-          {texts && texts.length === 0 && (
+          ) : texts && texts.length === 0 ? (
             <EmptyState
               icon={DocumentTextIcon}
               title="No texts yet"
@@ -148,20 +148,21 @@ export default function TextsPage() {
                 onClick: handleNewText,
               }}
             />
+          ) : (
+            texts?.map((text) => (
+              <TextListItem
+                key={text.id}
+                text={text}
+                isSelected={text.id === selectedTextId}
+                onClick={() => router.push(`/texts?id=${text.id}`)}
+                onDelete={() => handleDelete(text.id)}
+              />
+            ))
           )}
-          {texts?.map((text) => (
-            <TextListItem
-              key={text.id}
-              text={text}
-              isSelected={text.id === selectedTextId}
-              onClick={() => router.push(`/texts?id=${text.id}`)}
-              onDelete={() => handleDelete(text.id)}
-            />
-          ))}
         </div>
       </div>
       {/* Content Area */}
-      <div className="flex-1 bg-surface">
+      <div className={`flex-1 bg-surface ${!selectedText ? 'flex items-center justify-center' : ''}`}>
         {selectedText ? (
           <TextEditor
             key={selectedText.id} // Force re-mount on text change
