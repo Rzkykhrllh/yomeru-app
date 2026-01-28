@@ -1,5 +1,6 @@
 import kuromoji from "kuromoji";
 import path from "path";
+import { katakanaToHiragana } from "../utils/kanaConverter";
 
 let tokenizer: any = null;
 
@@ -111,8 +112,8 @@ export const tokenizeText = async (text: string): Promise<Token[]> => {
         conjugated_type: token.conjugated_type,
         conjugated_form: token.conjugated_form,
         basic_form: token.basic_form,
-        reading: token.reading,
-        pronunciation: token.pronunciation,
+        reading: katakanaToHiragana(token.reading),
+        pronunciation: katakanaToHiragana(token.pronunciation),
         whitespace_before: whitespaceBefore,
       });
     }
