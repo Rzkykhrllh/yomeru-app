@@ -30,7 +30,7 @@ export default function VocabTooltip({ furigana, meaning, children }: VocabToolt
   const handleMouseEnter = () => {
     // Calculate position immediately on hover
     updatePosition();
-    
+
     timeoutRef.current = setTimeout(() => {
       setIsVisible(true);
     }, 300); // 300ms delay
@@ -48,13 +48,13 @@ export default function VocabTooltip({ furigana, meaning, children }: VocabToolt
     // Update position on scroll or resize while tooltip is visible
     if (isVisible) {
       const handleUpdate = () => updatePosition();
-      
-      window.addEventListener('scroll', handleUpdate, true); // capture phase for all scrolls
-      window.addEventListener('resize', handleUpdate);
-      
+
+      window.addEventListener("scroll", handleUpdate, true); // capture phase for all scrolls
+      window.addEventListener("resize", handleUpdate);
+
       return () => {
-        window.removeEventListener('scroll', handleUpdate, true);
-        window.removeEventListener('resize', handleUpdate);
+        window.removeEventListener("scroll", handleUpdate, true);
+        window.removeEventListener("resize", handleUpdate);
       };
     }
   }, [isVisible]);
@@ -77,25 +77,30 @@ export default function VocabTooltip({ furigana, meaning, children }: VocabToolt
       >
         {children}
       </span>
-      
-      {isVisible && isPositionCalculated && typeof window !== "undefined" && createPortal(
-        <div
-          className="fixed z-[9999] pointer-events-none"
-          style={{
-            top: `${position.top}px`,
-            left: `${position.left}px`,
-            transform: 'translate(-50%, -100%)',
-            transition: 'opacity 0.15s ease-out',
-            opacity: 1,
-          }}
-        >
-          <div className="bg-panel border border-line rounded-xl shadow-card px-3 py-2 min-w-max">
-            <div className="text-xs text-muted text-center mb-0.5">{furigana}</div>
-            <div className="text-sm font-semibold text-ink text-center whitespace-nowrap">{meaning}</div>
-          </div>
-        </div>,
-        document.body
-      )}
+
+      {isVisible &&
+        isPositionCalculated &&
+        typeof window !== "undefined" &&
+        createPortal(
+          <div
+            className="fixed z-[9999] pointer-events-none"
+            style={{
+              top: `${position.top}px`,
+              left: `${position.left}px`,
+              transform: "translate(-50%, -100%)",
+              transition: "opacity 0.15s ease-out",
+              opacity: 1,
+            }}
+          >
+            <div className="bg-panel border border-line rounded-xl shadow-card px-3 py-2 min-w-max">
+              <div className="text-xs text-muted text-center mb-0.5">{furigana}</div>
+              <div className="text-sm font-semibold text-ink text-center whitespace-nowrap">
+                {meaning}
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </>
   );
 }

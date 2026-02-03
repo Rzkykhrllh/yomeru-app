@@ -11,7 +11,12 @@ interface VocabListItemProps {
   onDelete: () => void;
 }
 
-export default function VocabListItem({ vocab, isSelected, onClick, onDelete }: VocabListItemProps) {
+export default function VocabListItem({
+  vocab,
+  isSelected,
+  onClick,
+  onDelete,
+}: VocabListItemProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -37,13 +42,9 @@ export default function VocabListItem({ vocab, isSelected, onClick, onDelete }: 
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2 mb-1">
             <h3 className="text-xl font-medium text-gray-900">{vocab.word}</h3>
-            {vocab.furigana && (
-              <span className="text-sm text-muted">{vocab.furigana}</span>
-            )}
+            {vocab.furigana && <span className="text-sm text-muted">{vocab.furigana}</span>}
           </div>
-          {vocab.meaning && (
-            <p className="text-sm text-muted truncate">{vocab.meaning}</p>
-          )}
+          {vocab.meaning && <p className="text-sm text-muted truncate">{vocab.meaning}</p>}
         </div>
 
         {/* Delete button - show on hover */}

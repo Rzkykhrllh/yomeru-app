@@ -1,7 +1,12 @@
 "use client";
 
 import { useToast } from "@/contexts/ToastContext";
-import { XMarkIcon, CheckCircleIcon, ExclamationCircleIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
+import {
+  XMarkIcon,
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  InformationCircleIcon,
+} from "@heroicons/react/24/outline";
 
 export default function ToastContainer() {
   const { toasts, hideToast } = useToast();
@@ -11,15 +16,19 @@ export default function ToastContainer() {
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-md">
       {toasts.map((toast) => {
-        const Icon = 
-          toast.type === "success" ? CheckCircleIcon :
-          toast.type === "error" ? ExclamationCircleIcon :
-          InformationCircleIcon;
+        const Icon =
+          toast.type === "success"
+            ? CheckCircleIcon
+            : toast.type === "error"
+              ? ExclamationCircleIcon
+              : InformationCircleIcon;
 
         const colorClasses =
-          toast.type === "success" ? "bg-green-50 text-green-800 border-green-200" :
-          toast.type === "error" ? "bg-red-50 text-red-800 border-red-200" :
-          "bg-blue-50 text-blue-800 border-blue-200";
+          toast.type === "success"
+            ? "bg-green-50 text-green-800 border-green-200"
+            : toast.type === "error"
+              ? "bg-red-50 text-red-800 border-red-200"
+              : "bg-blue-50 text-blue-800 border-blue-200";
 
         return (
           <div

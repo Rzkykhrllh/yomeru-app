@@ -105,9 +105,9 @@ export default function VocabDetail({ vocabId }: VocabDetailProps) {
 
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-muted mb-2">
-                          Furigana
-                        </label>
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-muted mb-2">
+                        Furigana
+                      </label>
                       <input
                         type="text"
                         value={furigana}
@@ -118,9 +118,9 @@ export default function VocabDetail({ vocabId }: VocabDetailProps) {
                       />
                     </div>
                     <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-muted mb-2">
-                          Meaning
-                        </label>
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-muted mb-2">
+                        Meaning
+                      </label>
                       <input
                         type="text"
                         value={meaning}
@@ -246,18 +246,14 @@ export default function VocabDetail({ vocabId }: VocabDetailProps) {
                 </div>
 
                 {/* Sentence */}
-                <p className="text-gray-700 leading-relaxed">
-                  "{appearance.sentence}"
-                </p>
+                <p className="text-gray-700 leading-relaxed">"{appearance.sentence}"</p>
               </Link>
             ))}
           </div>
         ) : (
           <div className="text-center py-12 bg-highlight rounded-xl border border-line">
             <p className="text-muted">No appearances in saved texts yet</p>
-            <p className="text-sm text-muted mt-1">
-              Save this vocab from a text to see it here
-            </p>
+            <p className="text-sm text-muted mt-1">Save this vocab from a text to see it here</p>
           </div>
         )}
       </div>
