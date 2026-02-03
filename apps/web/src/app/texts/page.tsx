@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef, useEffect, useMemo, Suspense } from "react";
 import {
   useTexts,
   useVocabs,
@@ -13,11 +14,13 @@ import TextListItem from "@/components/TextListItem";
 import TextEditor from "@/components/TextEditor";
 import EmptyState from "@/components/EmptyState";
 import ListSkeleton from "@/components/ListSkeleton";
-import { PlusIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
+import SearchInput from "@/components/SearchInput";
+import { PlusIcon, DocumentTextIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/contexts/ToastContext";
+import { normalizeJapanese } from "@/lib/normalizeJapanese";
 
-export default function TextsPage() {
+function TextsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedTextId = searchParams.get("id");
@@ -32,6 +35,48 @@ export default function TextsPage() {
   const { createTextVocab } = useCreateTextVocab();
 
   const selectedText = texts?.find((text) => text.id === selectedTextId) || null;
+
+  // Search State
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Filter texts based on the search query
+  const filteredTexts = useMemo(() => {
+    // no filter
+    if (!texts || !searchQuery.trim()) return texts;
+
+    const query = normalizeJapanese(searchQuery.trim());
+
+    return texts.filter((text) => {
+      return (
+        normalizeJapanese(text.title || "").includes(query) ||
+        normalizeJapanese(text.content).includes(query) ||
+        normalizeJapanese(text.source || "").includes(query)
+      );
+    });
+  }, [texts, searchQuery]);
+
+  // keyboard shortcut: focus search input on "f" key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // cmd/ctrl + f
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+
+      // escape to clear search input
+      if (e.key === "Escape" && searchQuery) {
+        setSearchQuery("");
+        searchInputRef.current?.blur();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [searchQuery]);
 
   const handleNewText = async () => {
     try {
@@ -132,24 +177,48 @@ export default function TextsPage() {
             <PlusIcon className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Search */}
+        <div className="px-3 py-3 border-b border-line bg-panel">
+          <SearchInput
+            ref={searchInputRef}
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search texts..."
+            onClear={() => searchInputRef.current?.blur()}
+          />
+        </div>
+
         {/* List */}
         <div className="flex-1 overflow-y-auto p-3 space-y-3">
           {textsLoading ? (
             <ListSkeleton count={5} />
           ) : textsError ? (
             <div className="p-4 text-center text-red-600">Failed to load texts</div>
-          ) : texts && texts.length === 0 ? (
-            <EmptyState
-              icon={DocumentTextIcon}
-              title="No texts yet"
-              description="Start by creating your first Japanese text to begin learning vocabulary"
-              action={{
-                label: "Create text",
-                onClick: handleNewText,
-              }}
-            />
+          ) : filteredTexts && filteredTexts.length === 0 ? (
+            searchQuery.trim() ? (
+              <EmptyState
+                icon={MagnifyingGlassIcon}
+                title="No results found"
+                description={`No texts found matching "${searchQuery}"`}
+                action={{
+                  label: "Clear search",
+                  onClick: () => setSearchQuery(""),
+                }}
+              />
+            ) : (
+              <EmptyState
+                icon={DocumentTextIcon}
+                title="No texts yet"
+                description="Start by creating your first Japanese text to begin learning vocabulary"
+                action={{
+                  label: "Create text",
+                  onClick: handleNewText,
+                }}
+              />
+            )
           ) : (
-            texts?.map((text) => (
+            filteredTexts?.map((text) => (
               <TextListItem
                 key={text.id}
                 text={text}
@@ -162,7 +231,9 @@ export default function TextsPage() {
         </div>
       </div>
       {/* Content Area */}
-      <div className={`flex-1 bg-surface ${!selectedText ? 'flex items-center justify-center' : ''}`}>
+      <div
+        className={`flex-1 bg-surface ${!selectedText ? "flex items-center justify-center" : ""}`}
+      >
         {selectedText ? (
           <TextEditor
             key={selectedText.id} // Force re-mount on text change
@@ -184,5 +255,13 @@ export default function TextsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function TextsPage() {
+  return (
+    <Suspense fallback={<ListSkeleton count={5} />}>
+      <TextsPageContent />
+    </Suspense>
   );
 }
