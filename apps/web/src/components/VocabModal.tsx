@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useToast } from "@/contexts/ToastContext";
-import { Vocab } from "@/types";
+import { postJson } from "@/lib/api";
+import { Vocab, TokenizeResponse } from "@/types";
 import Link from "next/link";
 
 interface VocabModalProps {
@@ -43,6 +44,20 @@ export default function VocabModal({
   const [isSaving, setIsSaving] = useState(false);
   const [isSavingSentence, setIsSavingSentence] = useState(false);
 
+  // Fetch the reading for basic_form by re-tokenizing it
+  const fetchBasicFormReading = async (basicForm: string) => {
+    try {
+      const response = await postJson<TokenizeResponse>("/api/tokenize", { text: basicForm });
+      // The first token's reading is the reading of basic_form
+      if (response.tokens.length > 0) {
+        return response.tokens[0].reading;
+      }
+    } catch (error) {
+      console.error("Failed to fetch basic_form reading:", error);
+    }
+    return null;
+  };
+
   // Auto-fill word and furigana when token changes
   useEffect(() => {
     if (token) {
@@ -53,11 +68,21 @@ export default function VocabModal({
         setMeaning(existingVocab.meaning || "");
         setNotes(existingVocab.notes || "");
       } else {
-        // Otherwise, use token data (new vocab)
-        setWord(token.surface_form);
-        setFurigana(token.reading || "");
+        // New vocab: always use basic_form (dictionary form)
+        setWord(token.basic_form);
         setMeaning("");
         setNotes(`Sentence: ${sentence}`);
+
+        // If conjugated (basic !== surface), fetch correct reading for basic_form
+        if (token.basic_form !== token.surface_form) {
+          setFurigana(""); // clear while fetching
+          fetchBasicFormReading(token.basic_form).then((reading) => {
+            if (reading) setFurigana(reading);
+          });
+        } else {
+          // Not conjugated — reading already correct
+          setFurigana(token.reading || "");
+        }
       }
     }
   }, [token, existingVocab, sentence]);

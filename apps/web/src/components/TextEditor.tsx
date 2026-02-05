@@ -172,7 +172,7 @@ export default function TextEditor({
     setSelectedToken(token);
     setSelectedTokenIndex(index);
 
-    // Find existing vocab for this token
+    // Find existing vocab for this token via basic_form (dictionary form)
     const existing = vocabs.find((vocab) => vocab.word === token.basic_form);
     setExistingVocab(existing || null);
 
