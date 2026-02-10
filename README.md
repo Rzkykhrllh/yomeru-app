@@ -1,6 +1,33 @@
-# Yomeru (Dokkai) - Japanese Reading & Vocab Learning App
+# Yomeru (読める) - Japanese Reading & Vocab Learning App
 
-A web application for learning Japanese vocabulary through reading. Paste Japanese text, tokenize it, annotate vocabulary, and track your learning progress.
+**Learn Japanese by reading.** Save your texts, click words to add them to your vocabulary bank with meanings, furigana, and custom notes. Watch your vocabulary grow as you read.
+
+---
+
+## ✨ Features
+
+- 📝 **Save and organize Japanese texts** - Store articles, stories, or any Japanese content you want to read
+- 🔤 **Smart tokenization** - Automatically breaks down text into clickable words with furigana tooltips
+- 💾 **One-click vocabulary saving** - Click any word to save it with meanings, furigana, and personal notes
+- 🔍 **Search everything** - Quickly find vocabs and texts in your collection
+- 📊 **Track word usage** - See where each vocabulary word appears across all your saved texts
+- 🎯 **Dictionary form normalization** - Conjugated verbs and adjectives automatically saved as dictionary forms for better learning
+
+---
+
+## 📸 Screenshots
+
+### Reading Interface
+Click any word in your text to save it to your vocabulary bank. Words you've already saved are highlighted.
+
+![Text Page - Annotating word](image-1.png)
+
+### Vocabulary Detail
+View all the places where a word appears in your reading materials, complete with sentence context.
+
+![Detail Vocabulary Page](image-2.png)
+
+---
 
 ## Tech Stack
 
@@ -34,11 +61,13 @@ yomeru-app/
 ### Local Development (without Docker)
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
 
 2. Set up environment variables:
+
 ```bash
 cp apps/api/.env.example apps/api/.env
 ```
@@ -46,6 +75,7 @@ cp apps/api/.env.example apps/api/.env
 Edit `apps/api/.env` and update the `DATABASE_URL` if needed.
 
 3. Start PostgreSQL (you can use Docker for just the database):
+
 ```bash
 docker run -d \
   --name yomeru-postgres \
@@ -57,6 +87,7 @@ docker run -d \
 ```
 
 4. Run Prisma migrations:
+
 ```bash
 cd apps/api
 npm exec prisma migrate dev --name init
@@ -64,73 +95,91 @@ npm exec prisma generate
 ```
 
 5. Start development servers:
+
 ```bash
 # From root directory
 npm dev
 ```
 
 This will start:
+
 - Frontend at http://localhost:3000
 - Backend at http://localhost:3001
 
 ### Docker Development
 
 1. Start all services:
+
 ```bash
 docker-compose up -d
 ```
 
 2. Run Prisma migrations:
+
 ```bash
 docker-compose exec api npm exec prisma migrate dev --name init
 ```
 
 3. Access the application:
+
 - Frontend: http://localhost:3000
 - Backend: http://localhost:3001
 
-## Features
+## 🎯 How It Works
 
-### MVP Features
-- ✅ Paste Japanese text → tokenize → clickable tokens
-- ✅ Annotate vocab: furigana, meaning, notes
-- ✅ Save texts
-- ✅ Highlight vocab that already exists in database
-- ✅ View vocab appearances across texts with sentence context
-- ⏳ Furigana display with `<ruby>` tag (toggle on/off)
+1. **Save a text** - Paste or create a Japanese text (article, story, sentence practice, etc.)
+2. **Switch to View mode** - The text is automatically tokenized into clickable words
+3. **Click any word** - A modal appears with auto-filled furigana (from the dictionary form)
+4. **Add meaning & notes** - Fill in the meaning and any personal notes you want
+5. **Build your vocab bank** - Words are saved in their dictionary form for consistent learning
+6. **See word usage** - Click any vocabulary to see every sentence where it appears across all your texts
+
+### Current Features
+
+- ✅ Text editor with Edit/View mode toggle
+- ✅ Automatic Japanese text tokenization (Kuromoji)
+- ✅ Smart vocabulary saving (dictionary form normalization)
+- ✅ Furigana tooltips on hover
+- ✅ Vocabulary highlighting (shows saved words)
+- ✅ Search & filter for both texts and vocabs
+- ✅ Word appearance tracking with sentence context
+- ✅ Keyboard shortcuts (Cmd+F for search, Cmd+E for mode toggle)
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/tokenize` | Tokenize Japanese text |
-| GET | `/api/vocabs` | Get all vocabs |
-| POST | `/api/vocabs` | Create vocab |
-| GET | `/api/vocabs/:id` | Get vocab + appearances |
-| GET | `/api/texts` | Get all texts |
-| POST | `/api/texts` | Create text |
-| GET | `/api/texts/:id` | Get text + vocabs |
-| POST | `/api/text-vocabs` | Link vocab to text with sentence |
+| Method | Endpoint           | Description                      |
+| ------ | ------------------ | -------------------------------- |
+| POST   | `/api/tokenize`    | Tokenize Japanese text           |
+| GET    | `/api/vocabs`      | Get all vocabs                   |
+| POST   | `/api/vocabs`      | Create vocab                     |
+| GET    | `/api/vocabs/:id`  | Get vocab + appearances          |
+| GET    | `/api/texts`       | Get all texts                    |
+| POST   | `/api/texts`       | Create text                      |
+| GET    | `/api/texts/:id`   | Get text + vocabs                |
+| POST   | `/api/text-vocabs` | Link vocab to text with sentence |
 
 ## Routes
 
-| Route | Description |
-|-------|-------------|
-| `/` | Paste new text |
-| `/vocabs` | Vocabulary list |
+| Route          | Description       |
+| -------------- | ----------------- |
+| `/`            | Paste new text    |
+| `/vocabs`      | Vocabulary list   |
 | `/vocabs/[id]` | Vocabulary detail |
-| `/texts` | Saved texts list |
-| `/texts/[id]` | Text detail |
+| `/texts`       | Saved texts list  |
+| `/texts/[id]`  | Text detail       |
 
 ## Database Schema
 
 ### vocabs
+
 - id, word, furigana, meaning, notes, created_at
 
 ### texts
+
 - id, title, content, source, created_at
 
 ### text_vocabs (junction table)
+
 - id, vocab_id, text_id, sentence, created_at
 
 ## Development Commands
@@ -152,14 +201,16 @@ npm lint
 npm clean
 ```
 
-## Future Considerations
+## 🚀 Roadmap / Future Ideas
 
-- Authentication for multi-user support
-- Desktop app with Tauri/Electron
-- Export vocab to Anki
-- SRS (Spaced Repetition System) / review system
-- Statistics (total vocab, streak, frequency)
-- Search/filter in vocab list
+- 🔐 Authentication for multi-user support
+- 💻 Desktop app with Tauri/Electron
+- 📤 Export vocabulary to Anki (`.apkg` format)
+- 🧠 SRS (Spaced Repetition System) with review queue
+- 📈 Statistics dashboard (vocab count, learning streak, word frequency)
+- 🏷️ Tags & categories for organizing texts and vocabs
+- 🎨 Dark mode
+- 🖊️ Text selection mode (manually select phrase ranges for compound words)
 
 ## License
 

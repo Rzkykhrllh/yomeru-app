@@ -5,7 +5,7 @@ import Layout from "@/components/Layout";
 
 export const metadata: Metadata = {
   title: "Yomeru - Japanese Reading & Vocab Learning",
-  description: "Paste Japanese text, annotate vocabulary, and track your learning progress",
+  description: "Learn Japanese by reading. Save texts, click words to build your vocabulary with meanings, furigana, and notes. Track your progress as your vocabulary grows.",
 };
 
 export default function RootLayout({
