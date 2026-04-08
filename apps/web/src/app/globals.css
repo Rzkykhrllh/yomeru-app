@@ -5,8 +5,73 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    color-scheme: light;
+    --color-surface: 246 247 251;
+    --color-panel: 255 255 255;
+    --color-card: 255 255 255;
+    --color-line: 232 236 243;
+    --color-body: 31 36 48;
+    --color-muted: 123 133 150;
+    --color-ink: 18 21 28;
+    --color-accent: 35 41 53;
+    --color-accent-soft: 234 242 255;
+    --color-highlight: 243 246 251;
+    --color-highlight-strong: 219 233 255;
+    --color-ring: 199 216 248;
+    --color-danger: 220 38 38;
+    --color-danger-soft: 254 242 242;
+    --color-success-soft: 240 253 244;
+    --color-success-ink: 22 101 52;
+    --color-info-soft: 239 246 255;
+    --color-info-ink: 30 64 175;
+    --app-gradient: radial-gradient(
+      1200px 600px at 12% -10%,
+      #ffffff 0%,
+      #f6f7fb 55%,
+      #eef2f8 100%
+    );
+  }
+
+  .dark {
+    color-scheme: dark;
+    --color-surface: 11 16 24;
+    --color-panel: 17 24 34;
+    --color-card: 22 30 43;
+    --color-line: 43 55 73;
+    --color-body: 225 232 242;
+    --color-muted: 155 168 189;
+    --color-ink: 245 248 252;
+    --color-accent: 59 88 124;
+    --color-accent-soft: 32 44 61;
+    --color-highlight: 26 35 48;
+    --color-highlight-strong: 64 89 120;
+    --color-ring: 96 137 186;
+    --color-danger: 248 113 113;
+    --color-danger-soft: 69 24 27;
+    --color-success-soft: 20 49 35;
+    --color-success-ink: 187 247 208;
+    --color-info-soft: 24 42 68;
+    --color-info-ink: 191 219 254;
+    --app-gradient: radial-gradient(
+      1200px 700px at 12% -10%,
+      #1b2a40 0%,
+      #0b1018 48%,
+      #070b12 100%
+    );
+  }
+
+  html,
   body {
-    @apply bg-app-gradient text-body font-sans;
+    min-height: 100%;
+  }
+
+  body {
+    @apply bg-app-gradient text-body font-sans transition-colors duration-200;
+  }
+
+  * {
+    @apply border-line;
   }
 }
 

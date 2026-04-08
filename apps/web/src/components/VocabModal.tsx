@@ -142,13 +142,13 @@ export default function VocabModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
       <div className="bg-panel rounded-2xl shadow-xl max-w-lg w-full p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-ink">
             {existingVocab ? "View Vocabulary" : "Save Vocabulary"}
           </h2>
           <button
             onClick={handleClose}
             disabled={isSaving}
-            className="text-gray-400 hover:text-gray-700 text-2xl leading-none disabled:opacity-50"
+            className="text-muted hover:text-ink text-2xl leading-none disabled:opacity-50"
           >
             ×
           </button>
@@ -164,7 +164,7 @@ export default function VocabModal({
               <label className="block text-xs font-semibold uppercase tracking-wide text-muted mb-2">
                 Word
               </label>
-              <p className="text-2xl font-semibold text-gray-900">{word}</p>
+              <p className="text-2xl font-semibold text-ink">{word}</p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -172,13 +172,13 @@ export default function VocabModal({
                 <label className="block text-xs font-semibold uppercase tracking-wide text-muted mb-2">
                   Furigana
                 </label>
-                <p className="text-lg text-gray-800">{furigana}</p>
+                <p className="text-lg text-body">{furigana}</p>
               </div>
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wide text-muted mb-2">
                   Meaning
                 </label>
-                <p className="text-lg text-gray-800">{meaning}</p>
+                <p className="text-lg text-body">{meaning}</p>
               </div>
             </div>
 
@@ -187,7 +187,7 @@ export default function VocabModal({
                 <label className="block text-xs font-semibold uppercase tracking-wide text-muted mb-2">
                   Saved Notes
                 </label>
-                <p className="text-sm text-gray-700 bg-highlight rounded-lg px-3 py-2">{notes}</p>
+                <p className="text-sm text-body bg-highlight rounded-lg px-3 py-2">{notes}</p>
               </div>
             )}
 
@@ -195,7 +195,7 @@ export default function VocabModal({
               <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-2">
                 Current Sentence
               </p>
-              <p className="text-base text-gray-900 leading-relaxed">{sentence}</p>
+              <p className="text-base text-body leading-relaxed">{sentence}</p>
             </div>
 
             <div className="flex gap-3 pt-2">
@@ -219,7 +219,7 @@ export default function VocabModal({
               )}
               <Link
                 href={`/vocabs?id=${existingVocab.id}`}
-                className="px-4 py-2 rounded-xl bg-accent text-white hover:bg-ink transition-colors text-center"
+                className="px-4 py-2 rounded-xl bg-accent text-white hover:opacity-90 transition-opacity text-center"
                 onClick={handleClose}
               >
                 View Detail
@@ -233,12 +233,12 @@ export default function VocabModal({
               <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-2">
                 Sentence
               </p>
-              <p className="text-base text-gray-900 leading-relaxed">{sentence}</p>
+              <p className="text-base text-body leading-relaxed">{sentence}</p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Word <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-body mb-1">
+                  Word <span className="text-danger">*</span>
                 </label>
                 <input
                   type="text"
@@ -251,8 +251,8 @@ export default function VocabModal({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Furigana <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-body mb-1">
+                  Furigana <span className="text-danger">*</span>
                 </label>
                 <input
                   type="text"
@@ -265,8 +265,8 @@ export default function VocabModal({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Meaning <span className="text-red-500">*</span>
+                <label className="block text-sm font-medium text-body mb-1">
+                  Meaning <span className="text-danger">*</span>
                 </label>
                 <input
                   type="text"
@@ -279,7 +279,7 @@ export default function VocabModal({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                <label className="block text-sm font-medium text-body mb-1">Notes</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
@@ -301,7 +301,7 @@ export default function VocabModal({
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="flex-1 px-4 py-2 rounded-xl bg-accent text-white hover:bg-ink transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-2 rounded-xl bg-accent text-white hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                   {isSaving ? "Saving..." : "Save"}
                 </button>

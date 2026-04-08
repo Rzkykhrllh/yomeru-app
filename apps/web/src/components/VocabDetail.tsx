@@ -34,7 +34,7 @@ export default function VocabDetail({ vocabId }: VocabDetailProps) {
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="text-gray-500">Loading...</div>
+        <div className="text-muted">Loading...</div>
       </div>
     );
   }
@@ -42,7 +42,7 @@ export default function VocabDetail({ vocabId }: VocabDetailProps) {
   if (isError || !vocab) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="text-red-600">Failed to load vocabulary</div>
+        <div className="text-danger">Failed to load vocabulary</div>
       </div>
     );
   }
@@ -152,7 +152,7 @@ export default function VocabDetail({ vocabId }: VocabDetailProps) {
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-2">
                         Word
                       </p>
-                      <h1 className="text-4xl font-semibold text-gray-900">{vocab.word}</h1>
+                      <h1 className="text-4xl font-semibold text-ink">{vocab.word}</h1>
                     </div>
                     {vocab.furigana && (
                       <span className="text-sm px-3 py-1 rounded-full bg-accent-soft text-muted border border-highlight-strong">
@@ -166,13 +166,13 @@ export default function VocabDetail({ vocabId }: VocabDetailProps) {
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted">
                         Furigana
                       </p>
-                      <p className="text-lg text-gray-800 mt-1">{vocab.furigana}</p>
+                      <p className="text-lg text-body mt-1">{vocab.furigana}</p>
                     </div>
                     <div className="rounded-xl border border-line bg-card px-4 py-3">
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted">
                         Meaning
                       </p>
-                      <p className="text-lg text-gray-800 mt-1">{vocab.meaning}</p>
+                      <p className="text-lg text-body mt-1">{vocab.meaning}</p>
                     </div>
                   </div>
 
@@ -181,7 +181,7 @@ export default function VocabDetail({ vocabId }: VocabDetailProps) {
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted">
                         Notes
                       </p>
-                      <p className="text-gray-700 mt-1">{vocab.notes}</p>
+                      <p className="text-body mt-1">{vocab.notes}</p>
                     </div>
                   )}
                 </div>
@@ -201,7 +201,7 @@ export default function VocabDetail({ vocabId }: VocabDetailProps) {
                   <button
                     onClick={handleSave}
                     disabled={isSaving || !word.trim() || !furigana.trim() || !meaning.trim()}
-                    className="px-3 py-2 text-sm rounded-xl bg-accent text-white hover:bg-ink transition-colors disabled:opacity-50"
+                    className="px-3 py-2 text-sm rounded-xl bg-accent text-white hover:opacity-90 transition-opacity disabled:opacity-50"
                   >
                     {isSaving ? "Saving..." : "Save"}
                   </button>
@@ -223,7 +223,7 @@ export default function VocabDetail({ vocabId }: VocabDetailProps) {
 
       {/* Appearances */}
       <div>
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+        <h2 className="text-2xl font-semibold text-ink mb-4">
           Appearances {vocab.appearances && `(${vocab.appearances.length})`}
         </h2>
 
@@ -237,16 +237,16 @@ export default function VocabDetail({ vocabId }: VocabDetailProps) {
               >
                 {/* Text Title + Source */}
                 <div className="flex items-baseline gap-2 mb-2">
-                  <h3 className="font-medium text-gray-900">
+                  <h3 className="font-medium text-ink">
                     {appearance.textTitle || "Untitled"}
                   </h3>
                   {appearance.textSource && (
-                    <span className="text-sm text-gray-500">• {appearance.textSource}</span>
+                    <span className="text-sm text-muted">• {appearance.textSource}</span>
                   )}
                 </div>
 
                 {/* Sentence */}
-                <p className="text-gray-700 leading-relaxed">"{appearance.sentence}"</p>
+                <p className="text-body leading-relaxed">"{appearance.sentence}"</p>
               </Link>
             ))}
           </div>

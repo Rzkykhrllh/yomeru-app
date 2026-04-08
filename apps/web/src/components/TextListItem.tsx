@@ -39,7 +39,7 @@ export default function TextListItem({ text, isSelected, onClick, onDelete }: Te
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-gray-900 truncate">{text.title || "Untitled"}</h3>
+          <h3 className="font-medium text-ink truncate">{text.title || "Untitled"}</h3>
           <p className="text-sm text-muted line-clamp-2 mt-1">{preview}</p>
           {text.source && <p className="text-sm text-muted mt-1">{text.source}</p>}
         </div>

@@ -168,7 +168,7 @@ function TextsPageContent() {
       <div className="w-80 border-r border-line bg-panel flex flex-col">
         {/* Header */}
         <div className="px-5 py-4 border-b border-line bg-panel flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">Texts</h2>
+          <h2 className="text-lg font-semibold text-ink">Texts</h2>
           <button
             onClick={handleNewText}
             className="p-2 text-muted hover:text-ink hover:bg-highlight transition-colors rounded-lg"
@@ -194,7 +194,7 @@ function TextsPageContent() {
           {textsLoading ? (
             <ListSkeleton count={5} />
           ) : textsError ? (
-            <div className="p-4 text-center text-red-600">Failed to load texts</div>
+            <div className="p-4 text-center text-danger">Failed to load texts</div>
           ) : filteredTexts && filteredTexts.length === 0 ? (
             searchQuery.trim() ? (
               <EmptyState

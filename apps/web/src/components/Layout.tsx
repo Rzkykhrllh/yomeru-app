@@ -5,6 +5,7 @@ import { RectangleStackIcon, BookOpenIcon } from "@heroicons/react/24/outline";
 import { ReactNode } from "react";
 import { ToastProvider } from "@/contexts/ToastContext";
 import ToastContainer from "@/components/ToastContainer";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface LayoutProps {
   children: ReactNode;
@@ -36,6 +37,9 @@ export default function Layout({ children }: LayoutProps) {
                 <item.icon className="h-6 w-6" />
               </Link>
             ))}
+            <div className="mt-auto">
+              <ThemeToggle />
+            </div>
           </div>
           {/* Content Area - Full width, pages control their own layout */}
           <div className="flex-1 overflow-hidden">{children}</div>
@@ -44,7 +48,7 @@ export default function Layout({ children }: LayoutProps) {
         <div className="md:hidden">
           {/* Top navigation bar */}
           <div className="sticky top-0 bg-panel border-b border-line z-10">
-            <div className="flex items-center justify-around py-3">
+            <div className="flex items-center justify-around gap-2 px-3 py-3">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
@@ -57,6 +61,7 @@ export default function Layout({ children }: LayoutProps) {
                   <span className="text-xs font-medium">{item.label}</span>
                 </Link>
               ))}
+              <ThemeToggle />
             </div>
           </div>
           {/* Content */}

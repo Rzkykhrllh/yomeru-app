@@ -25,10 +25,10 @@ export default function ToastContainer() {
 
         const colorClasses =
           toast.type === "success"
-            ? "bg-green-50 text-green-800 border-green-200"
+            ? "bg-success-soft text-success-ink border-success-ink/20"
             : toast.type === "error"
-              ? "bg-red-50 text-red-800 border-red-200"
-              : "bg-blue-50 text-blue-800 border-blue-200";
+              ? "bg-danger-soft text-danger border-danger/20"
+              : "bg-info-soft text-info-ink border-info-ink/20";
 
         return (
           <div

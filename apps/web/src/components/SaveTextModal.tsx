@@ -52,11 +52,11 @@ export default function SaveTextModal({ isOpen, onClose, onSave }: SaveTextModal
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
       <div className="bg-panel rounded-2xl shadow-xl max-w-md w-full p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">Save Text</h2>
+          <h2 className="text-2xl font-bold text-ink">Save Text</h2>
           <button
             onClick={handleClose}
             disabled={isSaving}
-            className="text-gray-400 hover:text-gray-700 text-2xl leading-none disabled:opacity-50"
+            className="text-muted hover:text-ink text-2xl leading-none disabled:opacity-50"
           >
             ×
           </button>
@@ -64,8 +64,8 @@ export default function SaveTextModal({ isOpen, onClose, onSave }: SaveTextModal
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Title <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-body mb-1">
+              Title <span className="text-danger">*</span>
             </label>
             <input
               type="text"
@@ -79,7 +79,7 @@ export default function SaveTextModal({ isOpen, onClose, onSave }: SaveTextModal
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-body mb-1">
               Source (optional)
             </label>
             <input
@@ -104,7 +104,7 @@ export default function SaveTextModal({ isOpen, onClose, onSave }: SaveTextModal
             <button
               type="submit"
               disabled={isSaving || !title.trim()}
-              className="flex-1 px-4 py-2 rounded-xl bg-accent text-white hover:bg-ink transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-2 rounded-xl bg-accent text-white hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               {isSaving ? "Saving..." : "Save"}
             </button>

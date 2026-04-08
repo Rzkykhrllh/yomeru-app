@@ -276,7 +276,7 @@ export default function TextEditor({
 
             {!loading && tokens.length > 0 && (
               <div className="p-5 rounded-2xl border border-line bg-card shadow-card">
-                <div className="text-xl leading-relaxed text-gray-900 whitespace-pre-wrap">
+                <div className="text-xl leading-relaxed text-body whitespace-pre-wrap">
                   {tokens.map((token, index) => {
                     // Handle newlines
                     if (token.surface_form === "\n") {

@@ -6,7 +6,7 @@ export default function VocabDetailPage({ params }: { params: { id: string } }) 
     return (
       <div>
         <h1 className="text-3xl font-bold mb-8">Vocabulary Detail</h1>
-        <div className="text-gray-600">Loading...</div>
+        <div className="text-muted">Loading...</div>
       </div>
     );
   }
@@ -14,7 +14,7 @@ export default function VocabDetailPage({ params }: { params: { id: string } }) 
     return (
       <div>
         <h1 className="text-3xl font-bold mb-8">Vocabulary Detail</h1>
-        <div className="text-red-600 bg-red-50 border border-red-200 rounded p-4">
+        <div className="text-danger bg-danger-soft border border-danger/20 rounded p-4">
           Failed to load vocabulary. Please try again.
         </div>
       </div>
@@ -23,15 +23,15 @@ export default function VocabDetailPage({ params }: { params: { id: string } }) 
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">{vocab.word}</h1>
-        {vocab.furigana && <p className="text-xl text-gray-600 mb-4">{vocab.furigana}</p>}
+        <h1 className="text-4xl font-bold text-ink mb-2">{vocab.word}</h1>
+        {vocab.furigana && <p className="text-xl text-muted mb-4">{vocab.furigana}</p>}
         {vocab.meaning && (
-          <p className="text-lg text-gray-700 mb-2">
+          <p className="text-lg text-body mb-2">
             <span className="font-medium">Meaning:</span> {vocab.meaning}
           </p>
         )}
         {vocab.notes && (
-          <p className="text-gray-600">
+          <p className="text-muted">
             <span className="font-medium">Notes:</span> {vocab.notes}
           </p>
         )}
@@ -41,14 +41,14 @@ export default function VocabDetailPage({ params }: { params: { id: string } }) 
         {vocab.appearances && vocab.appearances.length > 0 ? (
           <div className="space-y-4">
             {vocab.appearances.map((appearance, index) => (
-              <div key={index} className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                <p className="text-lg text-gray-900 mb-2 leading-relaxed">{appearance.sentence}</p>
-                <p className="text-sm text-gray-500">From: {appearance.textTitle}</p>
+              <div key={index} className="p-4 bg-highlight border border-line rounded-lg">
+                <p className="text-lg text-ink mb-2 leading-relaxed">{appearance.sentence}</p>
+                <p className="text-sm text-muted">From: {appearance.textTitle}</p>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-gray-600">No appearances found in saved texts yet.</p>
+          <p className="text-muted">No appearances found in saved texts yet.</p>
         )}
       </div>
     </div>

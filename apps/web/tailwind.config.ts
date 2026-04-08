@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: ["class"],
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -12,22 +13,27 @@ const config: Config = {
         sans: ["Plus Jakarta Sans", "Noto Sans JP", "sans-serif"],
       },
       colors: {
-        surface: "#f6f7fb",
-        panel: "#ffffff",
-        card: "#ffffff",
-        line: "#e8ecf3",
-        body: "#1f2430",
-        muted: "#7b8596",
-        ink: "#12151c",
-        accent: "#232935",
-        "accent-soft": "#eaf2ff",
-        highlight: "#f3f6fb",
-        "highlight-strong": "#dbe9ff",
-        ring: "#c7d8f8",
+        surface: "rgb(var(--color-surface) / <alpha-value>)",
+        panel: "rgb(var(--color-panel) / <alpha-value>)",
+        card: "rgb(var(--color-card) / <alpha-value>)",
+        line: "rgb(var(--color-line) / <alpha-value>)",
+        body: "rgb(var(--color-body) / <alpha-value>)",
+        muted: "rgb(var(--color-muted) / <alpha-value>)",
+        ink: "rgb(var(--color-ink) / <alpha-value>)",
+        accent: "rgb(var(--color-accent) / <alpha-value>)",
+        "accent-soft": "rgb(var(--color-accent-soft) / <alpha-value>)",
+        highlight: "rgb(var(--color-highlight) / <alpha-value>)",
+        "highlight-strong": "rgb(var(--color-highlight-strong) / <alpha-value>)",
+        ring: "rgb(var(--color-ring) / <alpha-value>)",
+        danger: "rgb(var(--color-danger) / <alpha-value>)",
+        "danger-soft": "rgb(var(--color-danger-soft) / <alpha-value>)",
+        "success-soft": "rgb(var(--color-success-soft) / <alpha-value>)",
+        "success-ink": "rgb(var(--color-success-ink) / <alpha-value>)",
+        "info-soft": "rgb(var(--color-info-soft) / <alpha-value>)",
+        "info-ink": "rgb(var(--color-info-ink) / <alpha-value>)",
       },
       backgroundImage: {
-        "app-gradient":
-          "radial-gradient(1200px 600px at 12% -10%, #ffffff 0%, #f6f7fb 55%, #eef2f8 100%)",
+        "app-gradient": "var(--app-gradient)",
       },
       boxShadow: {
         card: "0 1px 0 rgba(16, 24, 40, 0.04), 0 12px 30px rgba(16, 24, 40, 0.06)",

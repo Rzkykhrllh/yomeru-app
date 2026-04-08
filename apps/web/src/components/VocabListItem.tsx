@@ -41,7 +41,7 @@ export default function VocabListItem({
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2 mb-1">
-            <h3 className="text-xl font-medium text-gray-900">{vocab.word}</h3>
+            <h3 className="text-xl font-medium text-ink">{vocab.word}</h3>
             {vocab.furigana && <span className="text-sm text-muted">{vocab.furigana}</span>}
           </div>
           {vocab.meaning && <p className="text-sm text-muted truncate">{vocab.meaning}</p>}

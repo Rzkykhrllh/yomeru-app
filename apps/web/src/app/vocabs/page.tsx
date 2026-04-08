@@ -81,7 +81,7 @@ function VocabsPageContent() {
       <div className="w-80 border-r border-line bg-panel flex flex-col">
         {/* Header */}
         <div className="px-5 py-4 border-b border-line bg-panel">
-          <h2 className="text-lg font-semibold text-gray-900">Vocabs</h2>
+          <h2 className="text-lg font-semibold text-ink">Vocabs</h2>
           <p className="text-sm text-muted mt-1">
             {searchQuery.trim() ? (
               <>
@@ -111,7 +111,7 @@ function VocabsPageContent() {
           {vocabsLoading ? (
             <ListSkeleton count={5} />
           ) : vocabsError ? (
-            <div className="p-4 text-center text-red-600">Failed to load vocabs</div>
+            <div className="p-4 text-center text-danger">Failed to load vocabs</div>
           ) : filteredVocabs && filteredVocabs.length === 0 ? (
             searchQuery.trim() ? (
               <EmptyState
