@@ -125,22 +125,22 @@ This document is a step-by-step checklist to bring Yomeru from a personal local 
 
 > Fix UX issues and improve resilience for real users.
 
-- [ ] **5.1 Self-host fonts via `next/font`**
+- [x] **5.1 Self-host fonts via `next/font`**
   - File: `apps/web/src/app/globals.css` and `apps/web/src/app/layout.tsx`
   - Problem: Fonts are loaded from `fonts.googleapis.com`. This is a network dependency (slower on first load) and a GDPR concern in some regions since it leaks user IPs to Google.
   - Fix: Replace the `@import` from Google Fonts with `next/font/google`. Import `Plus_Jakarta_Sans` and `Noto_Sans_JP` in `layout.tsx` using `next/font/google` and apply them via CSS variables.
 
-- [ ] **5.2 Add error boundary**
+- [x] **5.2 Add error boundary**
   - Files: Create `apps/web/src/app/error.tsx` and `apps/web/src/app/global-error.tsx`
   - Problem: There is no App Router error boundary. Unhandled rendering errors show a blank white screen.
   - Fix: Create `error.tsx` with a friendly error UI and a "Try again" button that calls `reset()`. Create `global-error.tsx` for root-level errors.
 
-- [ ] **5.3 Improve SWR error retry behavior**
+- [x] **5.3 Improve SWR error retry behavior**
   - File: `apps/web/src/app/providers.tsx`
   - Problem: `shouldRetryOnError: false` means any transient network blip permanently breaks a component until the user manually refreshes the page.
   - Fix: Change to `shouldRetryOnError: true` with `errorRetryCount: 3` and `errorRetryInterval: 5000`.
 
-- [ ] **5.4 Remove dead code `SaveTextModal.tsx`**
+- [x] **5.4 Remove dead code `SaveTextModal.tsx`**
   - File: `apps/web/src/components/SaveTextModal.tsx`
   - Problem: This component exists but is not imported or used anywhere in the codebase.
   - Fix: Delete the file.

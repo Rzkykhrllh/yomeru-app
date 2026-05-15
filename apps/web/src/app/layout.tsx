@@ -1,9 +1,24 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import { Plus_Jakarta_Sans, Noto_Sans_JP } from "next/font/google";
 import Script from "next/script";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Providers } from "./providers";
 import Layout from "@/components/Layout";
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-plus-jakarta-sans",
+  display: "swap",
+});
+
+const notoSansJP = Noto_Sans_JP({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-noto-sans-jp",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Yomeru - Japanese Reading & Vocab Learning",
@@ -17,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
+      <html lang="en" suppressHydrationWarning className={`${plusJakartaSans.variable} ${notoSansJP.variable}`}>
         <body className="antialiased" suppressHydrationWarning>
           <Script id="theme-init" strategy="beforeInteractive">
             {`

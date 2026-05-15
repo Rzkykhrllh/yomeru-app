@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Plus Jakarta Sans", "Noto Sans JP", "sans-serif"],
+        sans: ["var(--font-plus-jakarta-sans)", "var(--font-noto-sans-jp)", "sans-serif"],
       },
       colors: {
         surface: "rgb(var(--color-surface) / <alpha-value>)",

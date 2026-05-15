@@ -31,7 +31,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         fetcher,
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
-        shouldRetryOnError: false,
+        shouldRetryOnError: true,
+        errorRetryCount: 3,
+        errorRetryInterval: 5000,
       }}
     >
       {children}
