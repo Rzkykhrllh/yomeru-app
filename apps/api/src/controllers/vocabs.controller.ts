@@ -1,5 +1,13 @@
 import { Request, Response, NextFunction } from "express";
+import { z } from "zod";
 import { prisma } from "../lib/prisma";
+
+const vocabSchema = z.object({
+  word: z.string().min(1, "Word is required"),
+  furigana: z.string().min(1, "Furigana is required"),
+  meaning: z.string().min(1, "Meaning is required"),
+  notes: z.string().optional(),
+});
 
 export const getVocabs = async (req: Request, res: Response) => {
   try {
@@ -22,11 +30,12 @@ export const getVocabs = async (req: Request, res: Response) => {
 
 export const addVocab = async (req: Request, res: Response) => {
   try {
-    const { word, furigana, meaning, notes } = req.body;
-
-    if (!word || !furigana || !meaning) {
-      return res.status(400).json({ error: "Word, furigana, and meaning are required" });
+    const result = vocabSchema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error.issues[0].message });
     }
+
+    const { word, furigana, meaning, notes } = result.data;
 
     // check if vocab already exists
     const isExist = await prisma.vocab.findFirst({
@@ -124,11 +133,13 @@ export const deleteVocab = async (req: Request, res: Response) => {
 export const updateVocab = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { word, furigana, meaning, notes } = req.body;
 
-    if (!word || !furigana || !meaning) {
-      return res.status(400).json({ error: "Word, furigana, and meaning are required" });
+    const result = vocabSchema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error.issues[0].message });
     }
+
+    const { word, furigana, meaning, notes } = result.data;
 
     const vocab = await prisma.vocab.update({
       where: { id },
@@ -141,7 +152,10 @@ export const updateVocab = async (req: Request, res: Response) => {
     });
 
     res.json({ vocab });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === "P2025") {
+      return res.status(404).json({ error: "Vocab not found" });
+    }
     console.error("Error updating vocab:", error);
     res.status(500).json({ error: "Failed to update vocab" });
   }

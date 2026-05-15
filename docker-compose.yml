@@ -6,9 +6,9 @@ services:
     container_name: yomeru-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: yomeru
-      POSTGRES_PASSWORD: yomeru_dev_pass
-      POSTGRES_DB: yomeru
+      POSTGRES_USER: ${POSTGRES_USER:-yomeru}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-yomeru_dev_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-yomeru}
     ports:
       - '5433:5432'
     volumes:
@@ -23,8 +23,10 @@ services:
     ports:
       - '3001:3001'
     environment:
-      DATABASE_URL: postgresql://yomeru:yomeru_dev_pass@postgres:5432/yomeru?schema=public
-      PORT: 3001
+      DATABASE_URL: ${DATABASE_URL:-postgresql://yomeru:yomeru_dev_pass@postgres:5432/yomeru?schema=public}
+      PORT: ${PORT:-3001}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      NODE_ENV: ${NODE_ENV:-development}
     depends_on:
       - postgres
     volumes:

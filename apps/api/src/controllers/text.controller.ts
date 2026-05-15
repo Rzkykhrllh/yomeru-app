@@ -1,5 +1,18 @@
 import { Request, Response } from "express";
+import { z } from "zod";
 import { prisma } from "../lib/prisma";
+
+const createTextSchema = z.object({
+  content: z.string(),
+  title: z.string().optional(),
+  source: z.string().optional(),
+});
+
+const updateTextSchema = z.object({
+  content: z.string().optional(),
+  title: z.string().optional(),
+  source: z.string().optional(),
+});
 
 export const getTexts = async (req: Request, res: Response) => {
   try {
@@ -16,9 +29,13 @@ export const getTexts = async (req: Request, res: Response) => {
 
 export const addText = async (req: Request, res: Response) => {
   try {
-    const { title, content, source } = req.body;
+    const result = createTextSchema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error.issues[0].message });
+    }
 
-    // Allow empty content for draft texts
+    const { title, content, source } = result.data;
+
     if (content === undefined || content === null) {
       return res.status(400).json({ error: "Content is required" });
     }
@@ -26,7 +43,7 @@ export const addText = async (req: Request, res: Response) => {
     const text = await prisma.text.create({
       data: {
         title: title || null,
-        content: content || "", // Allow empty string
+        content: content || "",
         source: source || null,
       },
     });
@@ -86,19 +103,24 @@ export const getTextDetails = async (req: Request, res: Response) => {
 export const editText = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { title, content, source } = req.body;
+
+    const result = updateTextSchema.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error.issues[0].message });
+    }
+
+    const { title, content, source } = result.data;
 
     const text = await prisma.text.update({
       where: { id },
-      data: {
-        title,
-        content,
-        source,
-      },
+      data: { title, content, source },
     });
 
     res.json({ text });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === "P2025") {
+      return res.status(404).json({ error: "Text not found" });
+    }
     console.error("Error updating text:", error);
     res.status(500).json({ error: "Failed to update text" });
   }

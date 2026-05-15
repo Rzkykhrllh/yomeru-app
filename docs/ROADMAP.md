@@ -55,32 +55,32 @@ This document is a step-by-step checklist to bring Yomeru from a personal local 
 
 > Minimum security measures before exposing the app to the public internet.
 
-- [ ] **3.1 Add `helmet` to Express**
+- [x] **3.1 Add `helmet` to Express**
   - File: `apps/api/src/index.ts`
   - Problem: No HTTP security headers are set (no CSP, HSTS, X-Frame-Options, etc.).
   - Fix: Install `helmet` (`npm install helmet` in `apps/api`). Add `app.use(helmet())` near the top of the Express setup in `index.ts`.
 
-- [ ] **3.2 Restrict CORS to known origins**
+- [x] **3.2 Restrict CORS to known origins**
   - File: `apps/api/src/index.ts`
   - Problem: `app.use(cors())` with no config allows requests from any origin — any website can call the API.
   - Fix: Update CORS config to only allow the frontend origin. Read the allowed origin from an environment variable (e.g., `CORS_ORIGIN`). Example: `app.use(cors({ origin: process.env.CORS_ORIGIN }))`. Add `CORS_ORIGIN` to `.env.example`.
 
-- [ ] **3.3 Add rate limiting to `/api/tokenize`**
+- [x] **3.3 Add rate limiting to `/api/tokenize`**
   - File: `apps/api/src/index.ts` or `apps/api/src/routes/tokenize.ts`
   - Problem: The tokenize endpoint runs CPU-bound NLP analysis on every request. No rate limiting means it can be abused to spike server CPU.
   - Fix: Install `express-rate-limit` (`npm install express-rate-limit` in `apps/api`). Apply a rate limiter specifically to `/api/tokenize` — e.g., max 30 requests per minute per IP.
 
-- [ ] **3.4 Add input validation with `zod`**
+- [x] **3.4 Add input validation with `zod`**
   - Files: All files in `apps/api/src/controllers/`
   - Problem: Input validation is done manually with `if (!field)` checks. No type safety, no format validation, easy to miss edge cases.
   - Fix: Install `zod` (`npm install zod` in `apps/api`). Create validation schemas for all request bodies (create vocab, update vocab, create text, update text, create text-vocab, tokenize). Validate in each controller before touching Prisma.
 
-- [ ] **3.5 Move hardcoded credentials out of `docker-compose.yml`**
+- [x] **3.5 Move hardcoded credentials out of `docker-compose.yml`**
   - File: `docker-compose.yml`
   - Problem: `POSTGRES_PASSWORD: yomeru_dev_pass` is hardcoded in the compose file.
   - Fix: Replace all hardcoded secrets in `docker-compose.yml` with references to environment variables using the `${VAR_NAME}` syntax. Create a `.env.docker` example file documenting required variables. Add `.env.docker` to `.gitignore`.
 
-- [ ] **3.6 Set Prisma log level to errors only**
+- [x] **3.6 Set Prisma log level to errors only**
   - File: `apps/api/src/lib/prisma.ts`
   - Problem: Prisma is configured with `log: ['query', 'error', 'warn']` — this logs every SQL query, which is very verbose and can leak sensitive data in production logs.
   - Fix: Change to `log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error']`.
