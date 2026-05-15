@@ -151,22 +151,22 @@ This document is a step-by-step checklist to bring Yomeru from a personal local 
 
 > Make Docker images production-grade and smaller.
 
-- [ ] **6.1 Add `output: 'standalone'` to `next.config.js`**
+- [x] **6.1 Add `output: 'standalone'` to `next.config.js`**
   - File: `apps/web/next.config.js`
   - Problem: The current web Docker image copies the entire `node_modules` folder, producing a very large image (often 1GB+).
   - Fix: Add `output: 'standalone'` to the Next.js config. This makes Next.js produce a minimal self-contained output in `.next/standalone` that includes only the necessary server files.
 
-- [ ] **6.2 Update web Dockerfile for standalone output**
+- [x] **6.2 Update web Dockerfile for standalone output**
   - File: `apps/web/Dockerfile`
   - Problem: After adding `output: 'standalone'`, the Dockerfile runner stage needs to copy from `.next/standalone` instead of the full app directory.
   - Fix: Update the runner stage to copy `.next/standalone`, `.next/static` into `standalone/.next/static`, and `public` into `standalone/public`. Set `CMD ["node", "server.js"]`.
 
-- [ ] **6.3 Add health checks to Dockerfiles**
+- [x] **6.3 Add health checks to Dockerfiles**
   - Files: `apps/api/Dockerfile`, `apps/web/Dockerfile`
   - Problem: No `HEALTHCHECK` instructions in either Dockerfile. Without this, Docker and orchestrators (Railway, etc.) can't tell if the container is actually healthy.
   - Fix: Add `HEALTHCHECK` to the API Dockerfile that calls `GET /health`. Add a basic HTTP health check to the web Dockerfile.
 
-- [ ] **6.4 Finalize entrypoint script for API migrations**
+- [x] **6.4 Finalize entrypoint script for API migrations**
   - File: `apps/api/entrypoint.sh` (created in 1.3)
   - Ensure the script contains:
     ```sh

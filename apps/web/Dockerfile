@@ -20,15 +20,18 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
-# Copy built files and dependencies
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/web/.next ./apps/web/.next
-COPY --from=builder /app/apps/web/node_modules ./apps/web/node_modules
+ENV NODE_ENV=production
+
+# Copy standalone output (much smaller than full node_modules)
+COPY --from=builder /app/apps/web/.next/standalone ./
+COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder /app/apps/web/public ./apps/web/public
-COPY --from=builder /app/apps/web/package.json ./apps/web/
 
 WORKDIR /app/apps/web
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD wget -qO- http://localhost:3000/ || exit 1
+
+CMD ["node", "server.js"]
