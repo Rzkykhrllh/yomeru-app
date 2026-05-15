@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { postJson } from "@/lib/api";
 import { TokenizeResponse, Vocab } from "@/types";
 import VocabModal from "./VocabModal";
@@ -34,6 +35,7 @@ export default function TextEditor({
   onSaveVocab,
   onSaveSentence,
 }: TextEditorProps) {
+  const { getToken } = useAuth();
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
   const [source, setSource] = useState(initialSource);
@@ -76,7 +78,8 @@ export default function TextEditor({
 
     setLoading(true);
     try {
-      const response = await postJson<TokenizeResponse>("/api/tokenize", { text: inputText });
+      const token = await getToken();
+      const response = await postJson<TokenizeResponse>("/api/tokenize", { text: inputText }, token ?? undefined);
       setTokens(response.tokens);
     } catch (error) {
       console.log("Process Error:", error);

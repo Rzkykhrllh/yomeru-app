@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { useToast } from "@/contexts/ToastContext";
 import { postJson } from "@/lib/api";
 import { Vocab, TokenizeResponse } from "@/types";
@@ -37,6 +38,7 @@ export default function VocabModal({
   onSaveSentence,
 }: VocabModalProps) {
   const { showToast } = useToast();
+  const { getToken } = useAuth();
   const [word, setWord] = useState("");
   const [furigana, setFurigana] = useState("");
   const [meaning, setMeaning] = useState("");
@@ -47,7 +49,8 @@ export default function VocabModal({
   // Fetch the reading for basic_form by re-tokenizing it
   const fetchBasicFormReading = async (basicForm: string) => {
     try {
-      const response = await postJson<TokenizeResponse>("/api/tokenize", { text: basicForm });
+      const token = await getToken();
+      const response = await postJson<TokenizeResponse>("/api/tokenize", { text: basicForm }, token ?? undefined);
       // The first token's reading is the reading of basic_form
       if (response.tokens.length > 0) {
         return response.tokens[0].reading;
