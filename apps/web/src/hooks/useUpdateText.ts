@@ -1,13 +1,17 @@
+import { useAuth } from "@clerk/nextjs";
 import { mutate } from "swr";
 import { putJson } from "@/lib/api";
 import { Text } from "@/types";
 
 export function useUpdateText() {
+  const { getToken } = useAuth();
+
   const updateText = async (
     id: string,
     data: { title?: string; content?: string; source?: string }
   ) => {
-    const result = await putJson<{ text: Text }>(`/api/texts/${id}`, data);
+    const token = await getToken();
+    const result = await putJson<{ text: Text }>(`/api/texts/${id}`, data, token ?? undefined);
 
     // Invalidate the SWR cache for texts
     await mutate("/api/texts");

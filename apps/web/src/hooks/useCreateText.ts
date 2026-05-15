@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { postJson } from "@/lib/api";
 import { Text } from "@/types";
 import { mutate } from "swr";
@@ -10,6 +11,7 @@ interface CreateTextData {
 }
 
 export function useCreateText() {
+  const { getToken } = useAuth();
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,7 +20,8 @@ export function useCreateText() {
     setError(null);
 
     try {
-      const result = await postJson<{ text: Text }>("/api/texts", data);
+      const token = await getToken();
+      const result = await postJson<{ text: Text }>("/api/texts", data, token ?? undefined);
 
       // Invalidate texts list to refetch
       await mutate("/api/texts");

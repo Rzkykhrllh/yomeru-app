@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import { clerkMiddleware, requireAuth } from '@clerk/express';
 import { tokenizeRouter } from './routes/tokenize.routes';
 import { vocabsRouter } from './routes/vocabs.routes';
 import { textsRouter } from './routes/texts.routes';
@@ -19,6 +20,9 @@ app.use(cors({ origin: allowedOrigin }));
 
 app.use(express.json());
 
+// Clerk auth middleware — attaches auth state to all requests
+app.use(clerkMiddleware());
+
 // Rate limiter for the tokenize endpoint (CPU-bound NLP)
 const tokenizeLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -28,16 +32,16 @@ const tokenizeLimiter = rateLimit({
   message: { error: 'Too many requests, please try again later.' },
 });
 
-// Health check
+// Health check (public)
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Routes
-app.use('/api/tokenize', tokenizeLimiter, tokenizeRouter);
-app.use('/api/vocabs', vocabsRouter);
-app.use('/api/texts', textsRouter);
-app.use('/api/text-vocabs', textVocabsRouter);
+// Protected routes — require valid Clerk session
+app.use('/api/tokenize', requireAuth(), tokenizeLimiter, tokenizeRouter);
+app.use('/api/vocabs', requireAuth(), vocabsRouter);
+app.use('/api/texts', requireAuth(), textsRouter);
+app.use('/api/text-vocabs', requireAuth(), textVocabsRouter);
 
 app.listen(PORT, () => {
   console.log(`API server running on port ${PORT}`);

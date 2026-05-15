@@ -1,4 +1,5 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
+import { getAuth } from "@clerk/express";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
 
@@ -11,15 +12,13 @@ const vocabSchema = z.object({
 
 export const getVocabs = async (req: Request, res: Response) => {
   try {
+    const { userId } = getAuth(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
     const vocabs = await prisma.vocab.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        _count: {
-          select: { textVocabs: true },
-        },
-      },
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      include: { _count: { select: { textVocabs: true } } },
     });
     res.json({ vocabs });
   } catch (error) {
@@ -30,6 +29,9 @@ export const getVocabs = async (req: Request, res: Response) => {
 
 export const addVocab = async (req: Request, res: Response) => {
   try {
+    const { userId } = getAuth(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
     const result = vocabSchema.safeParse(req.body);
     if (!result.success) {
       return res.status(400).json({ error: result.error.issues[0].message });
@@ -37,22 +39,24 @@ export const addVocab = async (req: Request, res: Response) => {
 
     const { word, furigana, meaning, notes } = result.data;
 
-    // check if vocab already exists
+    // Check if vocab already exists for this user
     const isExist = await prisma.vocab.findFirst({
-      where: { word },
+      where: { userId, word },
     });
 
     if (isExist) {
       return res.status(400).json({ error: "Vocab already exists" });
     }
 
+    // Upsert user record (Clerk user may not exist in our DB yet)
+    await prisma.user.upsert({
+      where: { id: userId },
+      update: {},
+      create: { id: userId, email: `${userId}@clerk.local` },
+    });
+
     const vocab = await prisma.vocab.create({
-      data: {
-        word,
-        furigana,
-        meaning,
-        notes: notes || null,
-      },
+      data: { userId, word, furigana, meaning, notes: notes || null },
     });
     res.status(201).json({ message: "Vocab created", vocab });
   } catch (error) {
@@ -63,24 +67,19 @@ export const addVocab = async (req: Request, res: Response) => {
 
 export const getVocabDetails = async (req: Request, res: Response) => {
   try {
+    const { userId } = getAuth(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
     const { id } = req.params;
 
-    const vocab = await prisma.vocab.findUnique({
-      where: { id },
+    const vocab = await prisma.vocab.findFirst({
+      where: { id, userId },
       include: {
         textVocabs: {
           include: {
-            text: {
-              select: {
-                id: true,
-                title: true,
-                source: true,
-              },
-            },
+            text: { select: { id: true, title: true, source: true } },
           },
-          orderBy: {
-            createdAt: "desc",
-          },
+          orderBy: { createdAt: "desc" },
         },
       },
     });
@@ -89,7 +88,6 @@ export const getVocabDetails = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Vocab not found" });
     }
 
-    // Format Appearances
     const appearances = vocab.textVocabs.map((tv) => ({
       textId: tv.text.id,
       textTitle: tv.text.title,
@@ -114,12 +112,16 @@ export const getVocabDetails = async (req: Request, res: Response) => {
 
 export const deleteVocab = async (req: Request, res: Response) => {
   try {
+    const { userId } = getAuth(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
     const { id } = req.params;
 
-    const isDeleted = await prisma.vocab.delete({
-      where: { id },
-    });
+    // Verify ownership before deleting
+    const vocab = await prisma.vocab.findFirst({ where: { id, userId } });
+    if (!vocab) return res.status(404).json({ error: "Vocab not found" });
 
+    const isDeleted = await prisma.vocab.delete({ where: { id } });
     res.json({ message: "Vocab deleted successfully", vocab: isDeleted });
   } catch (error: any) {
     if (error?.code === "P2025") {
@@ -132,6 +134,9 @@ export const deleteVocab = async (req: Request, res: Response) => {
 
 export const updateVocab = async (req: Request, res: Response) => {
   try {
+    const { userId } = getAuth(req);
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
     const { id } = req.params;
 
     const result = vocabSchema.safeParse(req.body);
@@ -141,14 +146,13 @@ export const updateVocab = async (req: Request, res: Response) => {
 
     const { word, furigana, meaning, notes } = result.data;
 
+    // Verify ownership
+    const existing = await prisma.vocab.findFirst({ where: { id, userId } });
+    if (!existing) return res.status(404).json({ error: "Vocab not found" });
+
     const vocab = await prisma.vocab.update({
       where: { id },
-      data: {
-        word,
-        furigana,
-        meaning,
-        notes: notes || null,
-      },
+      data: { word, furigana, meaning, notes: notes || null },
     });
 
     res.json({ vocab });

@@ -93,11 +93,11 @@ This document is a step-by-step checklist to bring Yomeru from a personal local 
 
 **Context:** Currently there is no user model and all data is globally shared. Every API endpoint needs to be updated to scope data by the authenticated user.
 
-- [ ] **4.1 Add `User` model to Prisma schema**
+- [x] **4.1 Add `User` model to Prisma schema**
   - File: `apps/api/prisma/schema.prisma`
   - Fix: Add a `User` model with fields: `id` (cuid), `email` (unique), `createdAt`. Add `userId String @map("user_id")` and the corresponding relation to `Vocab` and `Text` models. `TextVocab` is implicitly scoped via `Vocab` and `Text`, but consider adding `userId` there too for query efficiency. Create and run a new migration.
 
-- [ ] **4.2 Implement authentication using Clerk — frontend (`apps/web`)**
+- [x] **4.2 Implement authentication using Clerk — frontend (`apps/web`)**
   - Install `@clerk/nextjs`
   - Wrap the app with `ClerkProvider` in `apps/web/src/app/layout.tsx`
   - Add `middleware.ts` at `apps/web/src/middleware.ts` to protect all routes except public ones
@@ -105,17 +105,17 @@ This document is a step-by-step checklist to bring Yomeru from a personal local 
   - Update `apps/web/src/lib/api.ts` fetcher to include the Clerk session token in the `Authorization` header on every request
   - Add `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` to `apps/web/.env.example`
 
-- [ ] **4.3 Implement authentication using Clerk — backend (`apps/api`)**
+- [x] **4.3 Implement authentication using Clerk — backend (`apps/api`)**
   - Install `@clerk/express`
   - Add Clerk auth middleware to Express that verifies the JWT from the `Authorization` header
   - Make the verified `userId` available on `req.auth.userId`
   - Add `CLERK_SECRET_KEY` to `apps/api/.env.example`
 
-- [ ] **4.4 Scope all API queries by `userId`**
+- [x] **4.4 Scope all API queries by `userId`**
   - Files: All files in `apps/api/src/controllers/`
   - Fix: Update every Prisma query to include `where: { userId: req.auth.userId }` (or equivalent). For create operations, include `userId: req.auth.userId` in the data. This ensures users can only see and modify their own data.
 
-- [ ] **4.5 Handle new user creation on first sign-in**
+- [x] **4.5 Handle new user creation on first sign-in**
   - When a user signs in for the first time via Clerk, their `userId` (from Clerk) is used directly as the FK — no separate user sync needed unless you want to store extra user metadata locally.
   - Verify this works end-to-end: new user signs up → creates a text → only sees their own data.
 

@@ -7,28 +7,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        String   @id // Clerk user ID (e.g., user_xxx)
+  email     String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  vocabs Vocab[]
+  texts  Text[]
+
+  @@map("users")
+}
+
 model Vocab {
   id         String   @id @default(cuid())
-  word       String   @unique
+  userId     String   @map("user_id")
+  word       String
   furigana   String?
   meaning    String?
   notes      String?
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   textVocabs TextVocab[]
 
+  @@unique([userId, word])
   @@map("vocabs")
 }
 
 model Text {
   id        String   @id @default(cuid())
+  userId    String   @map("user_id")
   title     String?
   content   String
   source    String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   textVocabs TextVocab[]
 
   @@map("texts")

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { postJson } from "@/lib/api";
 import { Vocab } from "@/types";
 import { mutate } from "swr";
@@ -11,6 +12,7 @@ interface CreateVocabData {
 }
 
 export function useCreateVocab() {
+  const { getToken } = useAuth();
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,9 +21,10 @@ export function useCreateVocab() {
     setError(null);
 
     try {
-      const result = await postJson<{ vocab: Vocab }>("/api/vocabs", data);
+      const token = await getToken();
+      const result = await postJson<{ vocab: Vocab }>("/api/vocabs", data, token ?? undefined);
 
-      // Invalidate vocabs list to refetc
+      // Invalidate vocabs list to refetch
       await mutate("/api/vocabs");
 
       return result.vocab;

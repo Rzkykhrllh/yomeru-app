@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { RectangleStackIcon, BookOpenIcon } from "@heroicons/react/24/outline";
 import { ReactNode } from "react";
+import { UserButton } from "@clerk/nextjs";
 import { ToastProvider } from "@/contexts/ToastContext";
 import ToastContainer from "@/components/ToastContainer";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -37,8 +38,9 @@ export default function Layout({ children }: LayoutProps) {
                 <item.icon className="h-6 w-6" />
               </Link>
             ))}
-            <div className="mt-auto">
+            <div className="mt-auto flex flex-col items-center gap-3">
               <ThemeToggle />
+              <UserButton />
             </div>
           </div>
           {/* Content Area - Full width, pages control their own layout */}
@@ -62,6 +64,7 @@ export default function Layout({ children }: LayoutProps) {
                 </Link>
               ))}
               <ThemeToggle />
+              <UserButton />
             </div>
           </div>
           {/* Content */}
