@@ -34,17 +34,17 @@ This document is a step-by-step checklist to bring Yomeru from a personal local 
 
 > Improve data integrity at the database level, not just application level.
 
-- [ ] **2.1 Add unique constraint on `Vocab.word`**
+- [x] **2.1 Add unique constraint on `Vocab.word`**
   - File: `apps/api/prisma/schema.prisma`
   - Problem: Uniqueness of `word` is only enforced in application code via `findFirst`. Concurrent requests can still create duplicate vocab entries.
   - Fix: Add `@@unique([word])` to the `Vocab` model. Then create and run a new Prisma migration.
 
-- [ ] **2.2 Add unique constraint on `TextVocab`**
+- [x] **2.2 Add unique constraint on `TextVocab`**
   - File: `apps/api/prisma/schema.prisma`
   - Problem: Same issue — duplicate `(vocabId, textId, sentence)` combinations can be created under concurrent conditions.
   - Fix: Add `@@unique([vocabId, textId, sentence])` to the `TextVocab` model. Create and run a new Prisma migration.
 
-- [ ] **2.3 Add `updatedAt` field to all models**
+- [x] **2.3 Add `updatedAt` field to all models**
   - File: `apps/api/prisma/schema.prisma`
   - Problem: There is no way to know when a record was last modified.
   - Fix: Add `updatedAt DateTime @updatedAt @map("updated_at")` to `Vocab`, `Text`, and `TextVocab` models. Create and run a new Prisma migration.

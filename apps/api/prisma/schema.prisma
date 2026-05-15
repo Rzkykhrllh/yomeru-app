@@ -9,11 +9,12 @@ datasource db {
 
 model Vocab {
   id         String   @id @default(cuid())
-  word       String
+  word       String   @unique
   furigana   String?
   meaning    String?
   notes      String?
   createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   textVocabs TextVocab[]
 
@@ -26,6 +27,7 @@ model Text {
   content   String
   source    String?
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   textVocabs TextVocab[]
 
@@ -38,9 +40,11 @@ model TextVocab {
   textId    String   @map("text_id")
   sentence  String
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   vocab     Vocab    @relation(fields: [vocabId], references: [id], onDelete: Cascade)
   text      Text     @relation(fields: [textId], references: [id], onDelete: Cascade)
 
+  @@unique([vocabId, textId, sentence])
   @@map("text_vocabs")
 }
