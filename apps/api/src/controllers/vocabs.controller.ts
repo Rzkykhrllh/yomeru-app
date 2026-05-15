@@ -112,7 +112,10 @@ export const deleteVocab = async (req: Request, res: Response) => {
     });
 
     res.json({ message: "Vocab deleted successfully", vocab: isDeleted });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === "P2025") {
+      return res.status(404).json({ error: "Vocab not found" });
+    }
     console.error("Error deleting vocab:", error);
     res.status(500).json({ error: "Failed to delete vocab" });
   }

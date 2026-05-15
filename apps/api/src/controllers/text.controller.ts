@@ -113,7 +113,10 @@ export const deleteText = async (req: Request, res: Response) => {
     });
 
     res.json({ message: "Text deleted successfully" });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === "P2025") {
+      return res.status(404).json({ error: "Text not found" });
+    }
     console.error("Error deleting text:", error);
     res.status(500).json({ error: "Failed to delete text" });
   }

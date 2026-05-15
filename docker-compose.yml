@@ -41,7 +41,10 @@ services:
     ports:
       - '3002:3000'
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:3001
+      # IMPORTANT: NEXT_PUBLIC_API_URL is baked into the Next.js build at compile time and used by the browser.
+      # For local Docker development, use the host machine URL.
+      # For production, set this to the real public API URL (e.g., https://api.yourdomain.com).
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
     depends_on:
       - api
     volumes:

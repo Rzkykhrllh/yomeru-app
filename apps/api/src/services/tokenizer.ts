@@ -13,9 +13,9 @@ const initTokenizer = (): Promise<any> => {
 
     // Try multiple possible paths
     const possiblePaths = [
-      path.resolve(process.cwd(), "../../node_modules/kuromoji/dict"), // from apps/api
-      path.resolve(process.cwd(), "node_modules/kuromoji/dict"), // from root
-      "/Users/rizky/Desktop/Code/Personal/yomeru-app/node_modules/kuromoji/dict", // absolute
+      path.resolve(__dirname, "../../../node_modules/kuromoji/dict"), // from dist/services -> root node_modules
+      path.resolve(process.cwd(), "../../node_modules/kuromoji/dict"), // from apps/api workdir -> monorepo root
+      path.resolve(process.cwd(), "node_modules/kuromoji/dict"), // local node_modules
     ];
 
     let dicPath = possiblePaths[0];

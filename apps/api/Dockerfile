@@ -32,6 +32,9 @@ COPY --from=builder /app/apps/api/package.json ./apps/api/
 
 WORKDIR /app/apps/api
 
+COPY apps/api/entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+
 EXPOSE 3001
 
-CMD ["npm", "start"]
+CMD ["./entrypoint.sh"]
