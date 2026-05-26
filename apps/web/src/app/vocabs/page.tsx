@@ -287,7 +287,7 @@ function VocabsPageContent() {
           </div>
         </div>
       ) : (
-        <div className="w-80 border-r border-line bg-panel flex flex-col">
+        <div className="w-64 border-r border-line bg-panel flex flex-col">
           <div className="px-5 py-4 border-b border-line bg-panel flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-ink">
