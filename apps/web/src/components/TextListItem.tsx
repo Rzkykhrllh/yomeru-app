@@ -25,6 +25,11 @@ export default function TextListItem({
   const [showFolderMenu, setShowFolderMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData("text/plain", text.id);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm(`Delete "${text.title || "Untitled"}"?`)) {
@@ -59,6 +64,8 @@ export default function TextListItem({
 
   return (
     <div
+      draggable
+      onDragStart={handleDragStart}
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

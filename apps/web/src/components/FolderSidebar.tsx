@@ -22,6 +22,7 @@ interface FolderSidebarProps {
   onCreateFolder: (name: string) => Promise<void>;
   onRenameFolder: (id: string, name: string) => Promise<void>;
   onDeleteFolder: (id: string) => Promise<void>;
+  onDropText?: (textId: string, folderId: string | null) => void;
 }
 
 export default function FolderSidebar({
@@ -31,6 +32,7 @@ export default function FolderSidebar({
   onCreateFolder,
   onRenameFolder,
   onDeleteFolder,
+  onDropText,
 }: FolderSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -38,6 +40,20 @@ export default function FolderSidebar({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | "none" | null>(null);
+
+  const handleDrop = (e: React.DragEvent, folderId: string | null) => {
+    e.preventDefault();
+    const textId = e.dataTransfer.getData("text/plain");
+    if (textId) onDropText?.(textId, folderId);
+    setDragOverId(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent, id: string | "none") => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverId(id);
+  };
 
   const handleCreate = async () => {
     const name = newFolderName.trim();
@@ -135,7 +151,12 @@ export default function FolderSidebar({
         {/* All Texts */}
         <button
           onClick={() => onSelectFolder(null)}
+          onDragOver={(e) => handleDragOver(e, "none")}
+          onDragLeave={() => setDragOverId(null)}
+          onDrop={(e) => handleDrop(e, null)}
           className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
+            dragOverId === "none" ? "bg-highlight ring-1 ring-accent ring-inset" : ""
+          } ${
             selectedFolderId === null
               ? "bg-accent-soft text-ink font-medium"
               : "text-muted hover:text-ink hover:bg-highlight"
@@ -175,7 +196,12 @@ export default function FolderSidebar({
             ) : (
               <button
                 onClick={() => onSelectFolder(folder.id)}
+                onDragOver={(e) => handleDragOver(e, folder.id)}
+                onDragLeave={() => setDragOverId(null)}
+                onDrop={(e) => handleDrop(e, folder.id)}
                 className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
+                  dragOverId === folder.id ? "bg-highlight ring-1 ring-accent ring-inset" : ""
+                } ${
                   selectedFolderId === folder.id
                     ? "bg-accent-soft text-ink font-medium"
                     : "text-muted hover:text-ink hover:bg-highlight"

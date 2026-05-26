@@ -20,7 +20,7 @@ import EmptyState from "@/components/EmptyState";
 import ListSkeleton from "@/components/ListSkeleton";
 import SearchInput from "@/components/SearchInput";
 import FolderSidebar from "@/components/FolderSidebar";
-import { PlusIcon, DocumentTextIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, DocumentTextIcon, MagnifyingGlassIcon, ChevronDoubleLeftIcon, ChevronDoubleRightIcon } from "@heroicons/react/24/outline";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/contexts/ToastContext";
 import { normalizeJapanese } from "@/lib/normalizeJapanese";
@@ -47,6 +47,7 @@ function TextsPageContent() {
 
   // Folder filter state
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  const [textListCollapsed, setTextListCollapsed] = useState(false);
 
   // Search State
   const [searchQuery, setSearchQuery] = useState("");
@@ -224,80 +225,96 @@ function TextsPageContent() {
         onCreateFolder={handleCreateFolder}
         onRenameFolder={handleRenameFolder}
         onDeleteFolder={handleDeleteFolder}
+        onDropText={handleMoveToFolder}
       />
 
       {/* Text List Sidebar */}
-      <div className="w-80 border-r border-line bg-panel flex flex-col">
-        {/* Header */}
-        <div className="px-5 py-4 border-b border-line bg-panel flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-ink">
-            {selectedFolderId
-              ? (folders.find((f) => f.id === selectedFolderId)?.name ?? "Texts")
-              : "All Texts"}
-          </h2>
+      {textListCollapsed ? (
+        <div className="w-10 border-r border-line bg-panel flex flex-col shrink-0 items-center py-2 gap-1">
           <button
-            onClick={handleNewText}
-            className="p-2 text-muted hover:text-ink hover:bg-highlight transition-colors rounded-lg"
-            title="New text"
+            onClick={() => setTextListCollapsed(false)}
+            className="p-1.5 text-muted hover:text-ink rounded transition-colors"
+            title="Expand text list"
           >
-            <PlusIcon className="w-5 h-5" />
+            <ChevronDoubleRightIcon className="w-4 h-4" />
           </button>
         </div>
+      ) : (
+        <div className="w-80 border-r border-line bg-panel flex flex-col">
+          {/* Header */}
+          <div className="px-5 py-4 border-b border-line bg-panel flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-ink">
+              {selectedFolderId
+                ? (folders.find((f) => f.id === selectedFolderId)?.name ?? "Texts")
+                : "All Texts"}
+            </h2>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={handleNewText}
+                className="p-2 text-muted hover:text-ink hover:bg-highlight transition-colors rounded-lg"
+                title="New text"
+              >
+                <PlusIcon className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setTextListCollapsed(true)}
+                className="p-2 text-muted hover:text-ink hover:bg-highlight transition-colors rounded-lg"
+                title="Collapse list"
+              >
+                <ChevronDoubleLeftIcon className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
 
-        {/* Search */}
-        <div className="px-3 py-3 border-b border-line bg-panel">
-          <SearchInput
-            ref={searchInputRef}
-            value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder="Search texts..."
-            onClear={() => searchInputRef.current?.blur()}
-          />
-        </div>
+          {/* Search */}
+          <div className="px-3 py-3 border-b border-line bg-panel">
+            <SearchInput
+              ref={searchInputRef}
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="Search texts..."
+              onClear={() => searchInputRef.current?.blur()}
+            />
+          </div>
 
-        {/* List */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-3">
-          {textsLoading ? (
-            <ListSkeleton count={5} />
-          ) : textsError ? (
-            <div className="p-4 text-center text-danger">Failed to load texts</div>
-          ) : filteredTexts && filteredTexts.length === 0 ? (
-            searchQuery.trim() ? (
-              <EmptyState
-                icon={MagnifyingGlassIcon}
-                title="No results found"
-                description={`No texts found matching "${searchQuery}"`}
-                action={{
-                  label: "Clear search",
-                  onClick: () => setSearchQuery(""),
-                }}
-              />
+          {/* List */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-3">
+            {textsLoading ? (
+              <ListSkeleton count={5} />
+            ) : textsError ? (
+              <div className="p-4 text-center text-danger">Failed to load texts</div>
+            ) : filteredTexts && filteredTexts.length === 0 ? (
+              searchQuery.trim() ? (
+                <EmptyState
+                  icon={MagnifyingGlassIcon}
+                  title="No results found"
+                  description={`No texts found matching "${searchQuery}"`}
+                  action={{ label: "Clear search", onClick: () => setSearchQuery("") }}
+                />
+              ) : (
+                <EmptyState
+                  icon={DocumentTextIcon}
+                  title="No texts yet"
+                  description="Start by creating your first Japanese text to begin learning vocabulary"
+                  action={{ label: "Create text", onClick: handleNewText }}
+                />
+              )
             ) : (
-              <EmptyState
-                icon={DocumentTextIcon}
-                title="No texts yet"
-                description="Start by creating your first Japanese text to begin learning vocabulary"
-                action={{
-                  label: "Create text",
-                  onClick: handleNewText,
-                }}
-              />
-            )
-          ) : (
-            filteredTexts?.map((text) => (
-              <TextListItem
-                key={text.id}
-                text={text}
-                isSelected={text.id === selectedTextId}
-                onClick={() => router.push(`/texts?id=${text.id}`)}
-                onDelete={() => handleDelete(text.id)}
-                folders={folders}
-                onMoveToFolder={(folderId) => handleMoveToFolder(text.id, folderId)}
-              />
-            ))
-          )}
+              filteredTexts?.map((text) => (
+                <TextListItem
+                  key={text.id}
+                  text={text}
+                  isSelected={text.id === selectedTextId}
+                  onClick={() => router.push(`/texts?id=${text.id}`)}
+                  onDelete={() => handleDelete(text.id)}
+                  folders={folders}
+                  onMoveToFolder={(folderId) => handleMoveToFolder(text.id, folderId)}
+                />
+              ))
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Content Area */}
       <div
