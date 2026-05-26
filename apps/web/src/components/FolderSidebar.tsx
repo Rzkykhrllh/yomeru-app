@@ -11,11 +11,13 @@ import {
   CheckIcon,
   XMarkIcon,
   DocumentTextIcon,
+  ChevronDoubleLeftIcon,
+  ChevronDoubleRightIcon,
 } from "@heroicons/react/24/outline";
 
 interface FolderSidebarProps {
   folders: Folder[];
-  selectedFolderId: string | null; // null = "All Texts"
+  selectedFolderId: string | null;
   onSelectFolder: (folderId: string | null) => void;
   onCreateFolder: (name: string) => Promise<void>;
   onRenameFolder: (id: string, name: string) => Promise<void>;
@@ -30,6 +32,7 @@ export default function FolderSidebar({
   onRenameFolder,
   onDeleteFolder,
 }: FolderSidebarProps) {
+  const [collapsed, setCollapsed] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -64,17 +67,68 @@ export default function FolderSidebar({
     if (selectedFolderId === folder.id) onSelectFolder(null);
   };
 
+  // Collapsed state — show only icons
+  if (collapsed) {
+    return (
+      <div className="w-10 border-r border-line bg-panel flex flex-col shrink-0 items-center py-2 gap-1">
+        <button
+          onClick={() => setCollapsed(false)}
+          className="p-1.5 text-muted hover:text-ink rounded transition-colors"
+          title="Expand folders"
+        >
+          <ChevronDoubleRightIcon className="w-4 h-4" />
+        </button>
+        <div className="w-full border-t border-line my-1" />
+        {/* All texts icon */}
+        <button
+          onClick={() => onSelectFolder(null)}
+          className={`p-1.5 rounded transition-colors ${
+            selectedFolderId === null ? "text-ink bg-accent-soft" : "text-muted hover:text-ink hover:bg-highlight"
+          }`}
+          title="All Texts"
+        >
+          <DocumentTextIcon className="w-4 h-4" />
+        </button>
+        {folders.map((folder) => (
+          <button
+            key={folder.id}
+            onClick={() => onSelectFolder(folder.id)}
+            className={`p-1.5 rounded transition-colors ${
+              selectedFolderId === folder.id ? "text-ink bg-accent-soft" : "text-muted hover:text-ink hover:bg-highlight"
+            }`}
+            title={folder.name}
+          >
+            {selectedFolderId === folder.id ? (
+              <FolderOpenIcon className="w-4 h-4" />
+            ) : (
+              <FolderIcon className="w-4 h-4" />
+            )}
+          </button>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="w-48 border-r border-line bg-panel flex flex-col shrink-0">
       <div className="px-3 py-3 border-b border-line flex items-center justify-between">
         <span className="text-xs font-semibold text-muted uppercase tracking-wider">Folders</span>
-        <button
-          onClick={() => setIsCreating(true)}
-          className="p-1 text-muted hover:text-ink rounded transition-colors"
-          title="New folder"
-        >
-          <PlusIcon className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setIsCreating(true)}
+            className="p-1 text-muted hover:text-ink rounded transition-colors"
+            title="New folder"
+          >
+            <PlusIcon className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setCollapsed(true)}
+            className="p-1 text-muted hover:text-ink rounded transition-colors"
+            title="Collapse sidebar"
+          >
+            <ChevronDoubleLeftIcon className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto py-2">

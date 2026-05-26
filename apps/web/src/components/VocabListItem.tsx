@@ -1,14 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { Vocab } from "@/types";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import { useState, useRef, useEffect } from "react";
+import { Vocab, Tag } from "@/types";
+import { TrashIcon, TagIcon } from "@heroicons/react/24/outline";
+import TagPicker from "@/components/TagPicker";
 
 interface VocabListItemProps {
   vocab: Vocab;
   isSelected: boolean;
   onClick: () => void;
   onDelete: () => void;
+  allTags?: Tag[];
+  onToggleTag?: (vocabId: string, tagId: string) => void;
+  onCreateTag?: (name: string, color: string) => Promise<void>;
 }
 
 export default function VocabListItem({
@@ -16,8 +20,13 @@ export default function VocabListItem({
   isSelected,
   onClick,
   onDelete,
+  allTags = [],
+  onToggleTag,
+  onCreateTag,
 }: VocabListItemProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [showTagPicker, setShowTagPicker] = useState(false);
+  const tagPickerRef = useRef<HTMLDivElement>(null);
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -26,11 +35,27 @@ export default function VocabListItem({
     }
   };
 
+  const currentTagIds = vocab.vocabTags?.map((vt) => vt.tag.id) ?? [];
+
+  // Close tag picker when clicking outside
+  useEffect(() => {
+    if (!showTagPicker) return;
+    const handle = (e: MouseEvent) => {
+      if (tagPickerRef.current && !tagPickerRef.current.contains(e.target as Node)) {
+        setShowTagPicker(false);
+      }
+    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [showTagPicker]);
+
   return (
     <div
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+      }}
       className={`
         group relative pl-5 pr-12 py-4 cursor-pointer transition-colors
         rounded-2xl border border-line bg-card shadow-card
@@ -61,18 +86,33 @@ export default function VocabListItem({
             </div>
           )}
         </div>
-
-        {/* Delete button - show on hover */}
-        <button
-          onClick={handleDelete}
-          className={`absolute top-3 right-3 p-1 text-muted hover:text-ink transition-opacity ${
-            isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
-          title="Delete vocab"
-        >
-          <TrashIcon className="w-5 h-5" />
-        </button>
       </div>
+
+      {/* Hover actions */}
+      {isHovered && (
+        <div className="absolute top-3 right-3 flex items-center gap-1">
+          {/* Tag picker button */}
+          {onToggleTag && (
+            <div ref={tagPickerRef} onClick={(e) => e.stopPropagation()}>
+              <TagPicker
+                allTags={allTags}
+                selectedTagIds={currentTagIds}
+                onToggleTag={(tagId) => onToggleTag(vocab.id, tagId)}
+                onCreateTag={onCreateTag ?? (async () => {})}
+              />
+            </div>
+          )}
+
+          {/* Delete */}
+          <button
+            onClick={handleDelete}
+            className="p-1 text-muted hover:text-ink transition-colors"
+            title="Delete vocab"
+          >
+            <TrashIcon className="w-5 h-5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
