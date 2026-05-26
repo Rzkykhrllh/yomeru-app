@@ -9,3 +9,8 @@ export { useDeleteText } from "./useDeleteText";
 export { useDeleteVocab } from "./useDeleteVocab";
 export { useCreateTextVocab } from "./useCreateTextVocab";
 export { useUpdateVocab } from "./useUpdateVocab";
+export { useFolders } from "./useFolders";
+export { useTags } from "./useTags";
+export { useCreateFolder, useUpdateFolder, useDeleteFolder } from "./useFolderMutations";
+export { useCreateTag, useUpdateTag, useDeleteTag, useSetVocabTags } from "./useTagMutations";
+

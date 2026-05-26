@@ -8,6 +8,7 @@ interface CreateTextData {
   title: string;
   content: string;
   source?: string;
+  folderId?: string | null;
 }
 
 export function useCreateText() {

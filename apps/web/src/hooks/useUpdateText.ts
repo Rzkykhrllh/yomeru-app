@@ -8,7 +8,7 @@ export function useUpdateText() {
 
   const updateText = async (
     id: string,
-    data: { title?: string; content?: string; source?: string }
+    data: { title?: string; content?: string; source?: string; folderId?: string | null }
   ) => {
     const token = await getToken();
     const result = await putJson<{ text: Text }>(`/api/texts/${id}`, data, token ?? undefined);

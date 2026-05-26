@@ -1,10 +1,11 @@
 "use client";
 
-import { useVocab, useUpdateVocab } from "@/hooks";
-import { PencilIcon } from "@heroicons/react/24/outline";
+import { useVocab, useUpdateVocab, useTags, useCreateTag, useSetVocabTags } from "@/hooks";
+import { PencilIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useToast } from "@/contexts/ToastContext";
+import TagPicker from "@/components/TagPicker";
 
 interface VocabDetailProps {
   vocabId: string;
@@ -13,6 +14,9 @@ interface VocabDetailProps {
 export default function VocabDetail({ vocabId }: VocabDetailProps) {
   const { vocab, isLoading, isError } = useVocab(vocabId);
   const { updateVocab } = useUpdateVocab();
+  const { tags: allTags } = useTags();
+  const { createTag } = useCreateTag();
+  const { setVocabTags } = useSetVocabTags();
   const { showToast } = useToast();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -21,6 +25,29 @@ export default function VocabDetail({ vocabId }: VocabDetailProps) {
   const [meaning, setMeaning] = useState("");
   const [notes, setNotes] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+
+  // Tag state — derived from vocab.vocabTags (from list hook, not detail hook)
+  const currentTagIds: string[] =
+    (vocab as any)?.vocabTags?.map((vt: any) => vt.tag.id) ?? [];
+
+  const handleToggleTag = async (tagId: string) => {
+    const newIds = currentTagIds.includes(tagId)
+      ? currentTagIds.filter((id) => id !== tagId)
+      : [...currentTagIds, tagId];
+    try {
+      await setVocabTags(vocabId, newIds);
+    } catch {
+      showToast("Failed to update tags", "error");
+    }
+  };
+
+  const handleCreateTag = async (name: string, color: string) => {
+    try {
+      await createTag(name, color);
+    } catch (error: any) {
+      showToast(error?.info?.error || "Failed to create tag", "error");
+    }
+  };
 
   useEffect(() => {
     if (!vocab) return;
@@ -184,6 +211,35 @@ export default function VocabDetail({ vocabId }: VocabDetailProps) {
                       <p className="text-body mt-1">{vocab.notes}</p>
                     </div>
                   )}
+
+                  {/* Tags */}
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
+                    {currentTagIds.map((tagId) => {
+                      const tag = allTags.find((t) => t.id === tagId);
+                      if (!tag) return null;
+                      return (
+                        <span
+                          key={tag.id}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-white"
+                          style={{ backgroundColor: tag.color }}
+                        >
+                          {tag.name}
+                          <button
+                            onClick={() => handleToggleTag(tag.id)}
+                            className="ml-0.5 opacity-70 hover:opacity-100"
+                          >
+                            <XMarkIcon className="w-3 h-3" />
+                          </button>
+                        </span>
+                      );
+                    })}
+                    <TagPicker
+                      allTags={allTags}
+                      selectedTagIds={currentTagIds}
+                      onToggleTag={handleToggleTag}
+                      onCreateTag={handleCreateTag}
+                    />
+                  </div>
                 </div>
               )}
             </div>

@@ -18,7 +18,10 @@ export const getVocabs = async (req: Request, res: Response) => {
     const vocabs = await prisma.vocab.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
-      include: { _count: { select: { textVocabs: true } } },
+      include: {
+        _count: { select: { textVocabs: true } },
+        vocabTags: { include: { tag: true } },
+      },
     });
     res.json({ vocabs });
   } catch (error) {

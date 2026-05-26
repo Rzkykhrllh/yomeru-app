@@ -45,6 +45,21 @@ export default function VocabListItem({
             {vocab.furigana && <span className="text-sm text-muted">{vocab.furigana}</span>}
           </div>
           {vocab.meaning && <p className="text-sm text-muted truncate">{vocab.meaning}</p>}
+
+          {/* Tag badges */}
+          {vocab.vocabTags && vocab.vocabTags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {vocab.vocabTags.map(({ tag }) => (
+                <span
+                  key={tag.id}
+                  className="px-2 py-0.5 rounded-full text-xs font-medium text-white"
+                  style={{ backgroundColor: tag.color }}
+                >
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Delete button - show on hover */}

@@ -12,6 +12,23 @@ export interface Token {
   whitespace_before?: string; // whitespace/formatting before this token
 }
 
+export interface Folder {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  _count?: { texts: number };
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+  color: string;
+  createdAt: string;
+  updatedAt: string;
+  _count?: { vocabTags: number };
+}
+
 export interface Vocab {
   id: string;
   word: string;
@@ -19,6 +36,7 @@ export interface Vocab {
   meaning: string | null;
   notes: string | null;
   createdAt: string;
+  vocabTags?: Array<{ tag: Tag }>;
 }
 
 // Text yang disimpan user
@@ -27,6 +45,8 @@ export interface Text {
   title: string | null;
   content: string; // raw Japanese text
   source: string | null; // sumber text (optional)
+  folderId: string | null;
+  folder: Folder | null;
   createdAt: string;
 }
 
@@ -37,6 +57,14 @@ export interface TextVocab {
   vocabId: string;
   sentence: string;
   createdAt: string;
+}
+
+export interface FoldersResponse {
+  folders: Folder[];
+}
+
+export interface TagsResponse {
+  tags: Tag[];
 }
 
 export interface TokenizeResponse {

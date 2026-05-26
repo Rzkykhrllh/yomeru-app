@@ -7,12 +7,14 @@ const createTextSchema = z.object({
   content: z.string(),
   title: z.string().optional(),
   source: z.string().optional(),
+  folderId: z.string().optional().nullable(),
 });
 
 const updateTextSchema = z.object({
   content: z.string().optional(),
   title: z.string().optional(),
   source: z.string().optional(),
+  folderId: z.string().optional().nullable(),
 });
 
 export const getTexts = async (req: Request, res: Response) => {
@@ -20,10 +22,21 @@ export const getTexts = async (req: Request, res: Response) => {
     const { userId } = getAuth(req);
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
+    const { folderId } = req.query;
     const texts = await prisma.text.findMany({
-      where: { userId },
+      where: {
+        userId,
+        ...(folderId === "none"
+          ? { folderId: null }
+          : folderId
+          ? { folderId: String(folderId) }
+          : {}),
+      },
       orderBy: { createdAt: "desc" },
-      include: { _count: { select: { textVocabs: true } } },
+      include: {
+        _count: { select: { textVocabs: true } },
+        folder: { select: { id: true, name: true } },
+      },
     });
     res.json({ texts });
   } catch (error) {
@@ -42,7 +55,7 @@ export const addText = async (req: Request, res: Response) => {
       return res.status(400).json({ error: result.error.issues[0].message });
     }
 
-    const { title, content, source } = result.data;
+    const { title, content, source, folderId } = result.data;
 
     // Upsert user record (Clerk user may not exist in our DB yet)
     await prisma.user.upsert({
@@ -57,6 +70,7 @@ export const addText = async (req: Request, res: Response) => {
         title: title || null,
         content: content || "",
         source: source || null,
+        folderId: folderId || null,
       },
     });
 
@@ -127,11 +141,11 @@ export const editText = async (req: Request, res: Response) => {
     const existing = await prisma.text.findFirst({ where: { id, userId } });
     if (!existing) return res.status(404).json({ error: "Text not found" });
 
-    const { title, content, source } = result.data;
+    const { title, content, source, folderId } = result.data;
 
     const text = await prisma.text.update({
       where: { id },
-      data: { title, content, source },
+      data: { title, content, source, folderId },
     });
 
     res.json({ text });

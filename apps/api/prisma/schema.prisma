@@ -12,10 +12,41 @@ model User {
   email     String   @unique
   createdAt DateTime @default(now()) @map("created_at")
 
-  vocabs Vocab[]
-  texts  Text[]
+  vocabs   Vocab[]
+  texts    Text[]
+  folders  Folder[]
+  tags     Tag[]
 
   @@map("users")
+}
+
+model Folder {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  texts Text[]
+
+  @@unique([userId, name])
+  @@map("folders")
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  name      String
+  color     String   @default("#6B7280")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vocabTags VocabTag[]
+
+  @@unique([userId, name])
+  @@map("tags")
 }
 
 model Vocab {
@@ -28,23 +59,38 @@ model Vocab {
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   textVocabs TextVocab[]
+  vocabTags  VocabTag[]
 
   @@unique([userId, word])
   @@map("vocabs")
 }
 
+model VocabTag {
+  id      String @id @default(cuid())
+  vocabId String @map("vocab_id")
+  tagId   String @map("tag_id")
+
+  vocab Vocab @relation(fields: [vocabId], references: [id], onDelete: Cascade)
+  tag   Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([vocabId, tagId])
+  @@map("vocab_tags")
+}
+
 model Text {
   id        String   @id @default(cuid())
   userId    String   @map("user_id")
+  folderId  String?  @map("folder_id")
   title     String?
   content   String
   source    String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folder     Folder?   @relation(fields: [folderId], references: [id], onDelete: SetNull)
   textVocabs TextVocab[]
 
   @@map("texts")

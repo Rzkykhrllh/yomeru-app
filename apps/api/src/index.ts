@@ -7,6 +7,8 @@ import { tokenizeRouter } from './routes/tokenize.routes';
 import { vocabsRouter } from './routes/vocabs.routes';
 import { textsRouter } from './routes/texts.routes';
 import { textVocabsRouter } from './routes/textVocabs.routes';
+import { foldersRouter } from './routes/folders.routes';
+import { tagsRouter } from './routes/tags.routes';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -42,6 +44,8 @@ app.use('/api/tokenize', requireAuth(), tokenizeLimiter, tokenizeRouter);
 app.use('/api/vocabs', requireAuth(), vocabsRouter);
 app.use('/api/texts', requireAuth(), textsRouter);
 app.use('/api/text-vocabs', requireAuth(), textVocabsRouter);
+app.use('/api/folders', requireAuth(), foldersRouter);
+app.use('/api/tags', requireAuth(), tagsRouter);
 
 app.listen(PORT, () => {
   console.log(`API server running on port ${PORT}`);

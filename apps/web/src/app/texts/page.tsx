@@ -9,12 +9,17 @@ import {
   useDeleteText,
   useCreateVocab,
   useCreateTextVocab,
+  useFolders,
+  useCreateFolder,
+  useUpdateFolder,
+  useDeleteFolder,
 } from "@/hooks";
 import TextListItem from "@/components/TextListItem";
 import TextEditor from "@/components/TextEditor";
 import EmptyState from "@/components/EmptyState";
 import ListSkeleton from "@/components/ListSkeleton";
 import SearchInput from "@/components/SearchInput";
+import FolderSidebar from "@/components/FolderSidebar";
 import { PlusIcon, DocumentTextIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/contexts/ToastContext";
@@ -28,44 +33,58 @@ function TextsPageContent() {
 
   const { texts, isLoading: textsLoading, isError: textsError } = useTexts();
   const { vocabs } = useVocabs();
+  const { folders } = useFolders();
   const { createText } = useCreateText();
   const { updateText } = useUpdateText();
   const { deleteText } = useDeleteText();
   const { createVocab } = useCreateVocab();
   const { createTextVocab } = useCreateTextVocab();
+  const { createFolder } = useCreateFolder();
+  const { updateFolder } = useUpdateFolder();
+  const { deleteFolder } = useDeleteFolder();
 
   const selectedText = texts?.find((text) => text.id === selectedTextId) || null;
+
+  // Folder filter state
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
 
   // Search State
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Filter texts based on the search query
+  // Filter texts: first by folder, then by search query
   const filteredTexts = useMemo(() => {
-    // no filter
-    if (!texts || !searchQuery.trim()) return texts;
+    if (!texts) return texts;
 
-    const query = normalizeJapanese(searchQuery.trim());
+    let result = texts;
 
-    return texts.filter((text) => {
-      return (
-        normalizeJapanese(text.title || "").includes(query) ||
-        normalizeJapanese(text.content).includes(query) ||
-        normalizeJapanese(text.source || "").includes(query)
-      );
-    });
-  }, [texts, searchQuery]);
+    // Folder filter
+    if (selectedFolderId !== null) {
+      result = result.filter((t) => t.folderId === selectedFolderId);
+    }
 
-  // keyboard shortcut: focus search input on "f" key press
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = normalizeJapanese(searchQuery.trim());
+      result = result.filter((text) => {
+        return (
+          normalizeJapanese(text.title || "").includes(query) ||
+          normalizeJapanese(text.content).includes(query) ||
+          normalizeJapanese(text.source || "").includes(query)
+        );
+      });
+    }
+
+    return result;
+  }, [texts, searchQuery, selectedFolderId]);
+
+  // keyboard shortcut: focus search input on cmd+f
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // cmd/ctrl + f
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "f") {
         e.preventDefault();
         searchInputRef.current?.focus();
       }
-
-      // escape to clear search input
       if (e.key === "Escape" && searchQuery) {
         setSearchQuery("");
         searchInputRef.current?.blur();
@@ -84,6 +103,7 @@ function TextsPageContent() {
         title: "",
         content: "",
         source: new Date().toLocaleDateString(),
+        folderId: selectedFolderId ?? undefined,
       });
       router.push(`/texts?id=${newText.id}`);
     } catch (error) {
@@ -101,6 +121,16 @@ function TextsPageContent() {
     } catch (error) {
       console.error("Error updating text:", error);
       showToast("Failed to update text. Please try again.", "error");
+    }
+  };
+
+  // Move text to folder
+  const handleMoveToFolder = async (textId: string, folderId: string | null) => {
+    try {
+      await updateText(textId, { folderId });
+    } catch (error) {
+      console.error("Error moving text to folder:", error);
+      showToast("Failed to move text. Please try again.", "error");
     }
   };
 
@@ -126,15 +156,12 @@ function TextsPageContent() {
     if (!selectedTextId) return;
 
     try {
-      // First, create the vocab
       const vocab = await createVocab({
         word: data.word,
         furigana: data.furigana,
         meaning: data.meaning,
         notes: data.notes,
       });
-
-      // Then, create the text-vocab link with sentence
       await createTextVocab({
         vocabId: vocab.id,
         textId: selectedTextId,
@@ -158,17 +185,56 @@ function TextsPageContent() {
       });
     } catch (error) {
       console.error("Error saving sentence:", error);
-      throw error; // Re-throw to let VocabModal handle the error toast
+      throw error;
+    }
+  };
+
+  // Folder handlers
+  const handleCreateFolder = async (name: string) => {
+    try {
+      await createFolder(name);
+    } catch (error: any) {
+      showToast(error?.info?.error || "Failed to create folder", "error");
+    }
+  };
+
+  const handleRenameFolder = async (id: string, name: string) => {
+    try {
+      await updateFolder(id, name);
+    } catch (error: any) {
+      showToast(error?.info?.error || "Failed to rename folder", "error");
+    }
+  };
+
+  const handleDeleteFolder = async (id: string) => {
+    try {
+      await deleteFolder(id);
+    } catch (error) {
+      showToast("Failed to delete folder", "error");
     }
   };
 
   return (
     <div className="flex h-screen">
+      {/* Folder Sidebar */}
+      <FolderSidebar
+        folders={folders}
+        selectedFolderId={selectedFolderId}
+        onSelectFolder={setSelectedFolderId}
+        onCreateFolder={handleCreateFolder}
+        onRenameFolder={handleRenameFolder}
+        onDeleteFolder={handleDeleteFolder}
+      />
+
       {/* Text List Sidebar */}
       <div className="w-80 border-r border-line bg-panel flex flex-col">
         {/* Header */}
         <div className="px-5 py-4 border-b border-line bg-panel flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-ink">Texts</h2>
+          <h2 className="text-lg font-semibold text-ink">
+            {selectedFolderId
+              ? (folders.find((f) => f.id === selectedFolderId)?.name ?? "Texts")
+              : "All Texts"}
+          </h2>
           <button
             onClick={handleNewText}
             className="p-2 text-muted hover:text-ink hover:bg-highlight transition-colors rounded-lg"
@@ -225,18 +291,21 @@ function TextsPageContent() {
                 isSelected={text.id === selectedTextId}
                 onClick={() => router.push(`/texts?id=${text.id}`)}
                 onDelete={() => handleDelete(text.id)}
+                folders={folders}
+                onMoveToFolder={(folderId) => handleMoveToFolder(text.id, folderId)}
               />
             ))
           )}
         </div>
       </div>
+
       {/* Content Area */}
       <div
         className={`flex-1 bg-surface ${!selectedText ? "flex items-center justify-center" : ""}`}
       >
         {selectedText ? (
           <TextEditor
-            key={selectedText.id} // Force re-mount on text change
+            key={selectedText.id}
             textId={selectedText.id}
             initialTitle={selectedText.title || ""}
             initialContent={selectedText.content}
