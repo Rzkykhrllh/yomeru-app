@@ -263,7 +263,7 @@ function VocabsPageContent() {
 
       {/* Vocab List Sidebar */}
       {vocabListCollapsed ? (
-        <div className="w-10 border-r border-line bg-panel flex flex-col shrink-0 items-center py-2 gap-1">
+        <div className="w-10 border-r border-line bg-panel flex flex-col shrink-0 items-center py-2 gap-2">
           <button
             onClick={() => setVocabListCollapsed(false)}
             className="p-1.5 text-muted hover:text-ink rounded transition-colors"
@@ -271,6 +271,20 @@ function VocabsPageContent() {
           >
             <ChevronDoubleRightIcon className="w-4 h-4" />
           </button>
+          <div className="w-full border-t border-line" />
+          {/* Count badge */}
+          <span className="text-xs font-bold text-muted bg-highlight rounded-full w-6 h-6 flex items-center justify-center">
+            {filteredVocabs?.length ?? 0}
+          </span>
+          {/* Rotated label */}
+          <div className="flex-1 flex items-center justify-center">
+            <span
+              className="text-xs font-semibold text-muted uppercase tracking-widest select-none"
+              style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+            >
+              {selectedTagId ? (tags.find((t) => t.id === selectedTagId)?.name ?? "Vocabs") : "Vocabs"}
+            </span>
+          </div>
         </div>
       ) : (
         <div className="w-80 border-r border-line bg-panel flex flex-col">
