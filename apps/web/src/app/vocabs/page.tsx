@@ -320,7 +320,7 @@ function VocabsPageContent() {
             />
           </div>
 
-          <div className="flex-1 overflow-y-auto p-3 space-y-3">
+          <div className="flex-1 overflow-y-auto p-2 space-y-1">
             {vocabsLoading ? (
               <ListSkeleton count={5} />
             ) : vocabsError ? (

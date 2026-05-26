@@ -32,9 +32,7 @@ export default function TextListItem({
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm(`Delete "${text.title || "Untitled"}"?`)) {
-      onDelete();
-    }
+    if (confirm(`Delete "${text.title || "Untitled"}"?`)) onDelete();
   };
 
   const handleFolderClick = (e: React.MouseEvent) => {
@@ -48,7 +46,6 @@ export default function TextListItem({
     setShowFolderMenu(false);
   };
 
-  // Close menu when clicking outside
   useEffect(() => {
     if (!showFolderMenu) return;
     const handle = (e: MouseEvent) => {
@@ -60,8 +57,6 @@ export default function TextListItem({
     return () => document.removeEventListener("mousedown", handle);
   }, [showFolderMenu]);
 
-  const preview = text.content.length > 100 ? text.content.slice(0, 100) + "..." : text.content;
-
   return (
     <div
       draggable
@@ -70,79 +65,81 @@ export default function TextListItem({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`
-        group relative pl-5 pr-12 py-4 cursor-pointer transition-colors
-        rounded-2xl border border-line bg-card shadow-card
+        group relative px-3 py-2.5 cursor-pointer transition-colors
+        rounded-xl border border-line bg-card
         hover:bg-highlight hover:shadow-card-hover
-        ${isSelected ? "bg-accent-soft border-highlight-strong shadow-card-hover" : ""}
+        ${isSelected ? "bg-accent-soft border-highlight-strong" : ""}
       `}
     >
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-center justify-between gap-2 min-w-0">
+        {/* Left: title + meta */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-ink truncate">{text.title || "Untitled"}</h3>
-          <p className="text-sm text-muted line-clamp-2 mt-1">{preview}</p>
-          {text.source && <p className="text-sm text-muted mt-1">{text.source}</p>}
-
-          {/* Folder badge */}
-          {text.folder && (
-            <span className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-full text-xs bg-highlight text-muted border border-line">
-              <FolderIcon className="w-3 h-3" />
-              {text.folder.name}
-            </span>
-          )}
+          <p className="text-sm font-medium text-ink truncate">
+            {text.title || "Untitled"}
+          </p>
+          <div className="flex items-center gap-2 mt-0.5">
+            {text.source && (
+              <span className="text-xs text-muted truncate">{text.source}</span>
+            )}
+            {text.folder && (
+              <span className="inline-flex items-center gap-0.5 text-xs text-muted shrink-0">
+                <FolderIcon className="w-3 h-3" />
+                {text.folder.name}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Hover actions */}
-      {isHovered && (
-        <div className="absolute top-3 right-3 flex items-center gap-1">
-          {/* Move to folder */}
-          {folders.length > 0 && onMoveToFolder && (
-            <div className="relative" ref={menuRef}>
-              <button
-                className="p-1 text-muted hover:text-ink transition-colors"
-                onClick={handleFolderClick}
-                title="Move to folder"
-              >
-                <FolderIcon className="h-4 w-4" />
-              </button>
+        {/* Right: actions on hover */}
+        {isHovered && (
+          <div className="flex items-center gap-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+            {folders.length > 0 && onMoveToFolder && (
+              <div className="relative" ref={menuRef}>
+                <button
+                  className="p-1 text-muted hover:text-ink transition-colors"
+                  onClick={handleFolderClick}
+                  title="Move to folder"
+                >
+                  <FolderIcon className="h-3.5 w-3.5" />
+                </button>
 
-              {showFolderMenu && (
-                <div className="absolute right-0 top-6 z-50 w-44 bg-card border border-line rounded-xl shadow-lg overflow-hidden">
-                  <button
-                    onClick={(e) => handleMoveToFolder(e, null)}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-highlight transition-colors ${
-                      !text.folderId ? "text-ink font-medium" : "text-muted"
-                    }`}
-                  >
-                    No folder
-                  </button>
-                  <div className="border-t border-line" />
-                  {folders.map((folder) => (
+                {showFolderMenu && (
+                  <div className="absolute right-0 top-6 z-50 w-44 bg-card border border-line rounded-xl shadow-lg overflow-hidden">
                     <button
-                      key={folder.id}
-                      onClick={(e) => handleMoveToFolder(e, folder.id)}
+                      onClick={(e) => handleMoveToFolder(e, null)}
                       className={`w-full text-left px-3 py-2 text-sm hover:bg-highlight transition-colors ${
-                        text.folderId === folder.id ? "text-ink font-medium" : "text-muted"
+                        !text.folderId ? "text-ink font-medium" : "text-muted"
                       }`}
                     >
-                      {folder.name}
+                      No folder
                     </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                    <div className="border-t border-line" />
+                    {folders.map((folder) => (
+                      <button
+                        key={folder.id}
+                        onClick={(e) => handleMoveToFolder(e, folder.id)}
+                        className={`w-full text-left px-3 py-2 text-sm hover:bg-highlight transition-colors ${
+                          text.folderId === folder.id ? "text-ink font-medium" : "text-muted"
+                        }`}
+                      >
+                        {folder.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
-          {/* Delete */}
-          <button
-            className="p-1 text-muted hover:text-ink transition-colors"
-            onClick={handleDelete}
-            title="Delete Text"
-          >
-            <TrashIcon className="h-5 w-5" />
-          </button>
-        </div>
-      )}
+            <button
+              className="p-1 text-muted hover:text-danger transition-colors"
+              onClick={handleDelete}
+              title="Delete Text"
+            >
+              <TrashIcon className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

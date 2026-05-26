@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Vocab, Tag } from "@/types";
-import { TrashIcon, TagIcon } from "@heroicons/react/24/outline";
+import { TrashIcon } from "@heroicons/react/24/outline";
 import TagPicker from "@/components/TagPicker";
 
 interface VocabListItemProps {
@@ -25,94 +25,84 @@ export default function VocabListItem({
   onCreateTag,
 }: VocabListItemProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [showTagPicker, setShowTagPicker] = useState(false);
   const tagPickerRef = useRef<HTMLDivElement>(null);
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm(`Delete "${vocab.word}"?`)) {
-      onDelete();
-    }
+    if (confirm(`Delete "${vocab.word}"?`)) onDelete();
   };
 
   const currentTagIds = vocab.vocabTags?.map((vt) => vt.tag.id) ?? [];
-
-  // Close tag picker when clicking outside
-  useEffect(() => {
-    if (!showTagPicker) return;
-    const handle = (e: MouseEvent) => {
-      if (tagPickerRef.current && !tagPickerRef.current.contains(e.target as Node)) {
-        setShowTagPicker(false);
-      }
-    };
-    document.addEventListener("mousedown", handle);
-    return () => document.removeEventListener("mousedown", handle);
-  }, [showTagPicker]);
 
   return (
     <div
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => {
-        setIsHovered(false);
-      }}
+      onMouseLeave={() => setIsHovered(false)}
       className={`
-        group relative pl-5 pr-12 py-4 cursor-pointer transition-colors
-        rounded-2xl border border-line bg-card shadow-card
+        group relative px-3 py-2.5 cursor-pointer transition-colors
+        rounded-xl border border-line bg-card
         hover:bg-highlight hover:shadow-card-hover
-        ${isSelected ? "bg-accent-soft border-highlight-strong shadow-card-hover" : ""}
+        ${isSelected ? "bg-accent-soft border-highlight-strong" : ""}
       `}
     >
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-center justify-between gap-2 min-w-0">
+        {/* Left: word + furigana + meaning */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-baseline gap-2 mb-1">
-            <h3 className="text-xl font-medium text-ink">{vocab.word}</h3>
-            {vocab.furigana && <span className="text-sm text-muted">{vocab.furigana}</span>}
+          <div className="flex items-baseline gap-1.5 min-w-0">
+            <span className="text-base font-semibold text-ink truncate">{vocab.word}</span>
+            {vocab.furigana && (
+              <span className="text-xs text-muted shrink-0">{vocab.furigana}</span>
+            )}
           </div>
-          {vocab.meaning && <p className="text-sm text-muted truncate">{vocab.meaning}</p>}
+          {vocab.meaning && (
+            <p className="text-xs text-muted truncate mt-0.5">{vocab.meaning}</p>
+          )}
+        </div>
 
-          {/* Tag badges */}
+        {/* Right: tag dots + actions on hover */}
+        <div className="flex items-center gap-1 shrink-0">
+          {/* Tag color dots — always visible */}
           {vocab.vocabTags && vocab.vocabTags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {vocab.vocabTags.map(({ tag }) => (
+            <div className="flex items-center gap-0.5">
+              {vocab.vocabTags.slice(0, 3).map(({ tag }) => (
                 <span
                   key={tag.id}
-                  className="px-2 py-0.5 rounded-full text-xs font-medium text-white"
+                  className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: tag.color }}
-                >
-                  {tag.name}
-                </span>
+                  title={tag.name}
+                />
               ))}
+              {vocab.vocabTags.length > 3 && (
+                <span className="text-xs text-muted">+{vocab.vocabTags.length - 3}</span>
+              )}
+            </div>
+          )}
+
+          {/* Actions on hover */}
+          {isHovered && (
+            <div className="flex items-center gap-0.5" onClick={(e) => e.stopPropagation()}>
+              {onToggleTag && (
+                <div ref={tagPickerRef}>
+                  <TagPicker
+                    allTags={allTags}
+                    selectedTagIds={currentTagIds}
+                    onToggleTag={(tagId) => onToggleTag(vocab.id, tagId)}
+                    onCreateTag={onCreateTag ?? (async () => {})}
+                  />
+                </div>
+              )}
+              <button
+                onClick={handleDelete}
+                className="p-1 text-muted hover:text-danger transition-colors"
+                title="Delete vocab"
+              >
+                <TrashIcon className="w-3.5 h-3.5" />
+              </button>
             </div>
           )}
         </div>
       </div>
-
-      {/* Hover actions */}
-      {isHovered && (
-        <div className="absolute top-3 right-3 flex items-center gap-1">
-          {/* Tag picker button */}
-          {onToggleTag && (
-            <div ref={tagPickerRef} onClick={(e) => e.stopPropagation()}>
-              <TagPicker
-                allTags={allTags}
-                selectedTagIds={currentTagIds}
-                onToggleTag={(tagId) => onToggleTag(vocab.id, tagId)}
-                onCreateTag={onCreateTag ?? (async () => {})}
-              />
-            </div>
-          )}
-
-          {/* Delete */}
-          <button
-            onClick={handleDelete}
-            className="p-1 text-muted hover:text-ink transition-colors"
-            title="Delete vocab"
-          >
-            <TrashIcon className="w-5 h-5" />
-          </button>
-        </div>
-      )}
     </div>
   );
 }
